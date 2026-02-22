@@ -26,7 +26,7 @@
   body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-height:100vh;padding-bottom:env(safe-area-inset-bottom);}
 
   /* TOPBAR */
-  .topbar{position:sticky;top:0;z-index:100;background:rgba(10,10,10,0.94);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+  .topbar{position:sticky;top:0;z-index:100;background:rgba(10,10,10,0.94);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:14px 20px;padding-top:calc(14px + env(safe-area-inset-top));display:flex;align-items:center;justify-content:space-between;gap:12px;}
   .app-title{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:0.05em;color:var(--accent);line-height:1;}
   .today-badge{font-family:'Courier Prime',monospace;font-size:11px;color:var(--muted2);border:1px solid var(--border2);padding:4px 10px;border-radius:20px;}
 
@@ -396,22 +396,14 @@ function sessKey(day){
 
 // ── SCHEDULE BUILDER ──
 function buildSchedule(startMin,endMin,dayOff,events){
-  const T=[];
-  const add=(time,dur,label,note,tag,isEvent)=>T.push({time,dur,label,note,tag,isEvent:!!isEvent});
   const wakeTime=dayOff?8*60:Math.max(6*60,startMin-105);
+
+  // Build base tasks WITHOUT events first
+  const base=[];
+  const add=(time,dur,label,note,tag)=>base.push({time,dur,label,note,tag,isEvent:false});
 
   add(wakeTime,25,'📖 Bible Study','First thing — anchor the day before anything else','bible');
   add(wakeTime+30,30,'🍳 Breakfast','High protein + complex carbs — eat for gains','food');
-
-  // Inject events into schedule
-  if(events&&events.length){
-    events.forEach(ev=>{
-      const st=parseTime(ev.start);
-      const en=parseTime(ev.end);
-      const dur=en-st;
-      add(st,dur>0?dur:60,`🗓️ ${ev.name}`,ev.start+' – '+ev.end,'event',true);
-    });
-  }
 
   if(!dayOff){
     const morning=startMin<12*60;
@@ -425,11 +417,11 @@ function buildSchedule(startMin,endMin,dayOff,events){
       add(endMin+170,60,'📚 Linear Algebra','Study session','linalg');
       add(endMin+235,20,'🌙 Snack + Wind Down','Protein snack, water, wind down','food');
     } else {
-      const base=wakeTime+65;
-      add(base,70,'💪 Gym','10 min drive + 1 hr lift','gym');
-      add(base+75,30,'💻 LeetCode','1 problem — daily non-negotiable','leet');
-      add(base+110,60,'📚 Linear Algebra','Study while your brain is fresh','linalg');
-      add(base+175,45,'💼 Job Applications','45 min focused — quality over quantity','jobs');
+      const b=wakeTime+65;
+      add(b,70,'💪 Gym','10 min drive + 1 hr lift','gym');
+      add(b+75,30,'💻 LeetCode','1 problem — daily non-negotiable','leet');
+      add(b+110,60,'📚 Linear Algebra','Study while your brain is fresh','linalg');
+      add(b+175,45,'💼 Job Applications','45 min focused — quality over quantity','jobs');
       add(startMin-90,30,'🥗 Lunch','Big pre-work meal','food');
       add(startMin-20,20,'🚗 Travel to Work','20 min drive','travel');
       add(startMin,endMin-startMin,'💼 Work',`${fmtTime(startMin)} – ${fmtTime(endMin)}`,'work');
@@ -437,19 +429,72 @@ function buildSchedule(startMin,endMin,dayOff,events){
       add(endMin+25,30,'🍽️ Dinner','Protein + healthy fats','food');
     }
   } else {
-    const base=wakeTime+65;
-    add(base,40,'🏃 Run','Weekly cardio — your pace, your distance','run');
-    add(base+50,120,'📚 Linear Algebra','2 hr deep work block — no distractions','linalg');
-    add(base+175,30,'🥗 Lunch','Fuel up','food');
-    add(base+210,45,'💼 Job Applications','Quality focused applications','jobs');
-    add(base+260,30,'💻 LeetCode','1 problem','leet');
-    add(base+295,120,'🧘 Free Time','Rest, friends, recharge — no guilt','free');
+    const b=wakeTime+65;
+    add(b,40,'🏃 Run','Weekly cardio — your pace, your distance','run');
+    add(b+50,120,'📚 Linear Algebra','2 hr deep work block — no distractions','linalg');
+    add(b+175,30,'🥗 Lunch','Fuel up','food');
+    add(b+210,45,'💼 Job Applications','Quality focused applications','jobs');
+    add(b+260,30,'💻 LeetCode','1 problem','leet');
+    add(b+295,120,'🧘 Free Time','Rest, friends, recharge — no guilt','free');
     add(19*60,30,'🍽️ Dinner','High calorie evening meal','food');
     add(20*60,20,"🗓️ Set Tomorrow's Shift","Open the app tonight and set tomorrow's work hours",'free');
   }
 
-  T.sort((a,b)=>a.time-b.time);
-  return T.map(t=>({...t,timeStr:fmtTime(t.time),durStr:fmtDur(t.dur)}));
+  // Build event blocks — these are FIXED anchors
+  const eventBlocks=(events||[]).map(ev=>{
+    const st=parseTime(ev.start);
+    const en=parseTime(ev.end);
+    const dur=en>st?en-st:60;
+    return{time:st,dur,label:`🗓️ ${ev.name}`,note:`${ev.start} – ${ev.end}`,tag:'event',isEvent:true,end:st+dur};
+  });
+
+  if(!eventBlocks.length){
+    base.sort((a,b)=>a.time-b.time);
+    return base.map(t=>({...t,timeStr:fmtTime(t.time),durStr:fmtDur(t.dur)}));
+  }
+
+  // For each base task, check if it overlaps any event block.
+  // If so, push it to after the event ends (with a 5 min buffer).
+  // Fixed tasks (work, travel) are never moved — they stay as-is.
+  const FIXED_TAGS=['work','travel'];
+
+  const resolved = base.map(task=>{
+    if(FIXED_TAGS.includes(task.tag)) return task; // never move work/travel
+    let t={...task};
+    let moved=true;
+    let safety=0;
+    while(moved && safety<20){
+      moved=false;
+      for(const ev of eventBlocks){
+        const taskEnd=t.time+t.dur;
+        const overlaps=(t.time < ev.end) && (taskEnd > ev.time);
+        if(overlaps){
+          t={...t,time:ev.end+5}; // push to 5 min after event ends
+          moved=true;
+          break;
+        }
+      }
+      safety++;
+    }
+    return t;
+  });
+
+  // Also push tasks that now overlap each other (cascade effect)
+  resolved.sort((a,b)=>a.time-b.time);
+  for(let i=1;i<resolved.length;i++){
+    const prev=resolved[i-1];
+    const curr=resolved[i];
+    if(curr.isEvent||FIXED_TAGS.includes(curr.tag)) continue; // never push events or work
+    const prevEnd=prev.time+prev.dur;
+    if(curr.time<prevEnd){
+      resolved[i]={...curr,time:prevEnd+5};
+    }
+  }
+
+  // Merge events in
+  const all=[...resolved,...eventBlocks];
+  all.sort((a,b)=>a.time-b.time);
+  return all.map(t=>({...t,timeStr:fmtTime(t.time),durStr:fmtDur(t.dur)}));
 }
 
 // ── STATE ──

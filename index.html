@@ -443,7 +443,7 @@ function buildSchedule(startMin,endMin,dayOff,events){
     add(base+175,30,'🥗 Lunch','Fuel up','food');
     add(base+210,45,'💼 Job Applications','Quality focused applications','jobs');
     add(base+260,30,'💻 LeetCode','1 problem','leet');
-    add(base+295,120,'🎉 Free Time','Rest, friends, recharge — no guilt','free');
+    add(base+295,120,'🧘 Free Time','Rest, friends, recharge — no guilt','free');
     add(19*60,30,'🍽️ Dinner','High calorie evening meal','food');
     add(20*60,20,"🗓️ Set Tomorrow's Shift","Open the app tonight and set tomorrow's work hours",'free');
   }
@@ -703,7 +703,7 @@ function renderWater(){
 
   document.getElementById('water-bottles').innerHTML=Array.from({length:BOTTLE_GOAL},(_,i)=>`
     <div class="bottle ${i<bottles?'filled':''}" onclick="tapWater(${i})">
-      <div class="bottle-icon">🍶</div>
+      <div class="bottle-icon">💧</div>
       <div class="bottle-label">${BOTTLE_OZ} oz</div>
     </div>
   `).join('');

@@ -14,138 +14,182 @@
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0a0a0a; --surface: #111; --surface2: #181818;
-    --border: #222; --border2: #2e2e2e; --text: #f0f0ee;
-    --muted: #555; --muted2: #888; --accent: #e8ff47;
-    --accent-dim: rgba(232,255,71,0.12); --green: #4ade80;
-    --green-dim: rgba(74,222,128,0.1); --red: #f87171;
-    --water: #38bdf8; --water-dim: rgba(56,189,248,0.12);
+    --bg:#0a0a0a;--surface:#111;--surface2:#181818;
+    --border:#222;--border2:#2e2e2e;--text:#f0f0ee;
+    --muted:#555;--muted2:#888;--accent:#e8ff47;
+    --accent-dim:rgba(232,255,71,0.12);--green:#4ade80;
+    --green-dim:rgba(74,222,128,0.1);--red:#f87171;
+    --water:#38bdf8;--water-dim:rgba(56,189,248,0.12);
+    --purple:#c084fc;--orange:#fb923c;
   }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: var(--bg); color: var(--text); font-family: 'Outfit', sans-serif; min-height: 100vh; padding-bottom: env(safe-area-inset-bottom); }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-height:100vh;padding-bottom:env(safe-area-inset-bottom);}
 
-  .topbar { position: sticky; top: 0; z-index: 100; background: rgba(10,10,10,0.94); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-  .app-title { font-family: 'Bebas Neue', sans-serif; font-size: 24px; letter-spacing: 0.05em; color: var(--accent); line-height: 1; }
-  .today-badge { font-family: 'Courier Prime', monospace; font-size: 11px; color: var(--muted2); border: 1px solid var(--border2); padding: 4px 10px; border-radius: 20px; }
+  /* TOPBAR */
+  .topbar{position:sticky;top:0;z-index:100;background:rgba(10,10,10,0.94);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+  .app-title{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:0.05em;color:var(--accent);line-height:1;}
+  .today-badge{font-family:'Courier Prime',monospace;font-size:11px;color:var(--muted2);border:1px solid var(--border2);padding:4px 10px;border-radius:20px;}
 
-  .day-selector-wrap { padding: 18px 20px 0; }
-  .day-selector-label { font-family: 'Courier Prime', monospace; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
-  .day-pills { display: flex; gap: 7px; flex-wrap: wrap; margin-bottom: 16px; }
-  .day-pill { position: relative; cursor: pointer; border-radius: 10px; border: 1.5px solid var(--border2); padding: 9px 13px; background: var(--surface); transition: all 0.2s; min-width: 64px; text-align: center; user-select: none; }
-  .day-pill:hover { border-color: #444; background: var(--surface2); }
-  .day-pill.active { border-color: var(--accent); background: var(--accent-dim); }
-  .day-pill.active .pill-name { color: var(--accent); }
-  .pill-name { font-family: 'Bebas Neue', sans-serif; font-size: 17px; letter-spacing: 0.05em; color: var(--text); line-height: 1; margin-bottom: 2px; }
-  .pill-sub { font-size: 9px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
-  .pill-done-dot { position: absolute; top: 5px; right: 5px; width: 7px; height: 7px; border-radius: 50%; background: var(--green); display: none; }
-  .day-pill.has-history .pill-done-dot { display: block; }
+  /* DAY PILLS */
+  .day-selector-wrap{padding:18px 20px 0;}
+  .day-selector-label{font-family:'Courier Prime',monospace;font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+  .day-pills{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:16px;}
+  .day-pill{position:relative;cursor:pointer;border-radius:10px;border:1.5px solid var(--border2);padding:9px 13px;background:var(--surface);transition:all 0.2s;min-width:64px;text-align:center;user-select:none;}
+  .day-pill:hover{border-color:#444;background:var(--surface2);}
+  .day-pill.active{border-color:var(--accent);background:var(--accent-dim);}
+  .day-pill.active .pill-name{color:var(--accent);}
+  .day-pill.today-pill .pill-name::after{content:'·';color:var(--accent);margin-left:2px;}
+  .pill-name{font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:0.05em;color:var(--text);line-height:1;margin-bottom:2px;}
+  .pill-sub{font-size:9px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);}
+  .pill-date{font-family:'Courier Prime',monospace;font-size:9px;color:var(--muted);margin-bottom:2px;}
+  .pill-done-dot{position:absolute;top:5px;right:5px;width:7px;height:7px;border-radius:50%;background:var(--green);display:none;}
+  .day-pill.has-history .pill-done-dot{display:block;}
 
-  .shift-banner { margin: 0 20px 14px; background: var(--surface); border: 1px solid var(--border2); border-radius: 10px; padding: 13px 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-  .shift-banner-label { font-family: 'Courier Prime', monospace; font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); margin-bottom: 3px; }
-  .shift-banner-time { font-family: 'Bebas Neue', sans-serif; font-size: 21px; color: var(--text); letter-spacing: 0.05em; }
-  .shift-banner-time span { color: var(--accent); }
-  .no-shift-set { color: var(--muted2); font-size: 13px; font-family: 'Outfit', sans-serif; font-weight: 400; }
-  .edit-shift-btn { background: var(--surface2); border: 1px solid var(--border2); color: var(--muted2); font-family: 'Outfit', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; padding: 7px 14px; border-radius: 7px; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
-  .edit-shift-btn:hover { border-color: var(--accent); color: var(--accent); }
+  /* SHIFT BANNER */
+  .shift-banner{margin:0 20px 14px;background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:13px 16px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;}
+  .shift-banner-left{flex:1;min-width:0;}
+  .shift-banner-label{font-family:'Courier Prime',monospace;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);margin-bottom:3px;}
+  .shift-banner-time{font-family:'Bebas Neue',sans-serif;font-size:21px;color:var(--text);letter-spacing:0.05em;}
+  .shift-banner-time span{color:var(--accent);}
+  .no-shift-set{color:var(--muted2);font-size:13px;font-family:'Outfit',sans-serif;font-weight:400;}
+  .event-badge{display:inline-flex;align-items:center;gap:5px;margin-top:5px;background:rgba(192,132,252,0.12);border:1px solid rgba(192,132,252,0.3);border-radius:20px;padding:3px 10px;font-size:11px;color:var(--purple);font-weight:500;}
+  .edit-shift-btn{background:var(--surface2);border:1px solid var(--border2);color:var(--muted2);font-family:'Outfit',sans-serif;font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;padding:7px 14px;border-radius:7px;cursor:pointer;transition:all 0.2s;white-space:nowrap;flex-shrink:0;}
+  .edit-shift-btn:hover{border-color:var(--accent);color:var(--accent);}
 
-  .progress-wrap { padding: 0 20px 14px; }
-  .progress-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 7px; }
-  .progress-label { font-family: 'Courier Prime', monospace; font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); }
-  .progress-count { font-family: 'Bebas Neue', sans-serif; font-size: 18px; color: var(--accent); letter-spacing: 0.05em; }
-  .progress-track { height: 4px; background: var(--border2); border-radius: 2px; overflow: hidden; }
-  .progress-fill { height: 100%; background: var(--accent); border-radius: 2px; transition: width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); width: 0%; }
+  /* PROGRESS */
+  .progress-wrap{padding:0 20px 14px;}
+  .progress-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;}
+  .progress-label{font-family:'Courier Prime',monospace;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);}
+  .progress-count{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--accent);letter-spacing:0.05em;}
+  .progress-track{height:4px;background:var(--border2);border-radius:2px;overflow:hidden;}
+  .progress-fill{height:100%;background:var(--accent);border-radius:2px;transition:width 0.5s cubic-bezier(0.34,1.56,0.64,1);width:0%;}
 
-  .water-card { margin: 0 20px 14px; background: var(--surface); border: 1px solid rgba(56,189,248,0.25); border-radius: 10px; padding: 14px 16px; }
-  .water-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-  .water-title { font-family: 'Courier Prime', monospace; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--water); }
-  .water-count-label { font-family: 'Bebas Neue', sans-serif; font-size: 20px; color: var(--water); }
-  .water-cups { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
-  .cup { width: 36px; height: 36px; border-radius: 8px; border: 1.5px solid var(--border2); background: var(--surface2); display: flex; align-items: center; justify-content: center; font-size: 17px; cursor: pointer; transition: all 0.2s; user-select: none; filter: grayscale(1) opacity(0.4); }
-  .cup.filled { background: var(--water-dim); border-color: var(--water); filter: none; }
-  .cup:hover { border-color: var(--water); transform: scale(1.08); filter: none; }
-  .water-note { font-size: 11px; color: var(--muted); }
-  .water-note span { color: var(--water); font-weight: 600; }
+  /* WATER TRACKER */
+  .water-card{margin:0 20px 14px;background:var(--surface);border:1px solid rgba(56,189,248,0.25);border-radius:10px;padding:14px 16px;}
+  .water-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+  .water-title{font-family:'Courier Prime',monospace;font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:var(--water);}
+  .water-right{display:flex;align-items:center;gap:10px;}
+  .water-count-label{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--water);}
+  .water-oz{font-family:'Courier Prime',monospace;font-size:10px;color:var(--muted);margin-top:2px;}
+  .water-bottles{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;}
+  .bottle{
+    display:flex;flex-direction:column;align-items:center;gap:3px;
+    cursor:pointer;user-select:none;transition:all 0.2s;
+    padding:6px 8px;border-radius:8px;border:1.5px solid var(--border2);
+    background:var(--surface2);min-width:52px;
+  }
+  .bottle:hover{border-color:var(--water);transform:translateY(-2px);}
+  .bottle.filled{border-color:var(--water);background:var(--water-dim);}
+  .bottle-icon{font-size:22px;filter:grayscale(1) opacity(0.35);transition:filter 0.2s;}
+  .bottle.filled .bottle-icon{filter:none;}
+  .bottle-label{font-family:'Courier Prime',monospace;font-size:9px;color:var(--muted);letter-spacing:0.05em;}
+  .bottle.filled .bottle-label{color:var(--water);}
+  .water-note{font-size:11px;color:var(--muted);}
+  .water-note span{color:var(--water);font-weight:600;}
+  .water-progress-wrap{margin-bottom:8px;}
+  .water-progress-track{height:3px;background:var(--border2);border-radius:2px;overflow:hidden;}
+  .water-progress-fill{height:100%;background:var(--water);border-radius:2px;transition:width 0.4s ease;}
 
-  .content { padding: 0 20px 60px; display: grid; grid-template-columns: 1fr 296px; gap: 16px; align-items: start; }
+  /* CONTENT */
+  .content{padding:0 20px 60px;display:grid;grid-template-columns:1fr 296px;gap:16px;align-items:start;}
 
-  .task-list { display: flex; flex-direction: column; gap: 7px; }
-  .task-card { background: var(--surface); border: 1px solid var(--border2); border-radius: 10px; padding: 13px 15px; display: flex; align-items: flex-start; gap: 12px; cursor: pointer; transition: all 0.2s; animation: slideIn 0.3s ease both; position: relative; overflow: hidden; }
-  .task-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--card-color, var(--border2)); opacity: 0; transition: opacity 0.2s; }
-  .task-card:hover { border-color: #333; background: var(--surface2); }
-  .task-card:hover::before, .task-card.done::before { opacity: 1; }
-  .task-card.done { opacity: 0.48; }
-  .task-card.done .task-label { text-decoration: line-through; color: var(--muted2); }
-  .task-card.done::before { background: var(--green) !important; }
-  .task-check { width: 21px; height: 21px; border-radius: 6px; border: 1.5px solid var(--border2); flex-shrink: 0; display: flex; align-items: center; justify-content: center; margin-top: 1px; transition: all 0.2s; font-size: 11px; }
-  .task-card.done .task-check { background: var(--green); border-color: var(--green); color: #000; }
-  .task-body { flex: 1; min-width: 0; }
-  .task-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 2px; }
-  .task-time { font-family: 'Courier Prime', monospace; font-size: 10px; letter-spacing: 0.1em; color: var(--muted); text-transform: uppercase; }
-  .task-duration { font-family: 'Courier Prime', monospace; font-size: 10px; color: var(--muted); background: var(--surface2); padding: 1px 7px; border-radius: 10px; white-space: nowrap; border: 1px solid var(--border); }
-  .task-label { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
-  .task-note { font-size: 11px; color: var(--muted2); font-weight: 300; }
-  .task-tag { font-size: 10px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; padding: 2px 7px; border-radius: 20px; margin-top: 5px; display: inline-block; }
-
-  @keyframes slideIn { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: translateX(0); } }
+  /* TASK CARDS */
+  .task-list{display:flex;flex-direction:column;gap:7px;}
+  .task-card{background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:13px 15px;display:flex;align-items:flex-start;gap:12px;cursor:pointer;transition:all 0.2s;animation:slideIn 0.3s ease both;position:relative;overflow:hidden;}
+  .task-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--card-color,var(--border2));opacity:0;transition:opacity 0.2s;}
+  .task-card:hover{border-color:#333;background:var(--surface2);}
+  .task-card:hover::before,.task-card.done::before{opacity:1;}
+  .task-card.done{opacity:0.45;}
+  .task-card.done .task-label{text-decoration:line-through;color:var(--muted2);}
+  .task-card.done::before{background:var(--green)!important;}
+  .task-card.event-task{border-color:rgba(192,132,252,0.3);}
+  .task-check{width:21px;height:21px;border-radius:6px;border:1.5px solid var(--border2);flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:1px;transition:all 0.2s;font-size:11px;}
+  .task-card.done .task-check{background:var(--green);border-color:var(--green);color:#000;}
+  .task-body{flex:1;min-width:0;}
+  .task-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:2px;}
+  .task-time{font-family:'Courier Prime',monospace;font-size:10px;letter-spacing:0.1em;color:var(--muted);text-transform:uppercase;}
+  .task-duration{font-family:'Courier Prime',monospace;font-size:10px;color:var(--muted);background:var(--surface2);padding:1px 7px;border-radius:10px;white-space:nowrap;border:1px solid var(--border);}
+  .task-label{font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px;}
+  .task-note{font-size:11px;color:var(--muted2);font-weight:300;}
+  .task-tag{font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;padding:2px 7px;border-radius:20px;margin-top:5px;display:inline-block;}
+  @keyframes slideIn{from{opacity:0;transform:translateX(-8px);}to{opacity:1;transform:translateX(0);}}
   .task-card:nth-child(1){animation-delay:.02s}.task-card:nth-child(2){animation-delay:.05s}.task-card:nth-child(3){animation-delay:.08s}.task-card:nth-child(4){animation-delay:.11s}.task-card:nth-child(5){animation-delay:.14s}.task-card:nth-child(6){animation-delay:.17s}.task-card:nth-child(7){animation-delay:.20s}.task-card:nth-child(8){animation-delay:.23s}.task-card:nth-child(9){animation-delay:.26s}.task-card:nth-child(10){animation-delay:.29s}
 
-  .sidebar { display: flex; flex-direction: column; gap: 13px; }
-  .sidebar-card { background: var(--surface); border: 1px solid var(--border2); border-radius: 10px; padding: 16px 18px; }
-  .sidebar-card h3 { font-family: 'Courier Prime', monospace; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
-  .streak-display { display: flex; align-items: baseline; gap: 5px; margin-bottom: 5px; }
-  .streak-num { font-family: 'Bebas Neue', sans-serif; font-size: 48px; color: var(--accent); line-height: 1; }
-  .streak-unit { font-size: 13px; color: var(--muted2); }
-  .streak-sub { font-size: 11px; color: var(--muted); line-height: 1.5; }
-  .week-dots { display: flex; gap: 5px; margin-top: 10px; }
-  .w-dot { flex: 1; aspect-ratio: 1; border-radius: 4px; background: var(--border); display: flex; align-items: center; justify-content: center; font-family: 'Bebas Neue', sans-serif; font-size: 10px; color: var(--muted); }
-  .w-dot.partial { background: rgba(232,255,71,0.2); color: var(--accent); }
-  .w-dot.full { background: var(--accent); color: #000; }
-  .heatmap { display: flex; flex-direction: column; gap: 7px; }
-  .heatmap-row { display: flex; align-items: center; gap: 7px; }
-  .heatmap-day-label { font-family: 'Bebas Neue', sans-serif; font-size: 12px; color: var(--muted2); width: 28px; flex-shrink: 0; }
-  .heatmap-bar-wrap { flex: 1; height: 18px; background: var(--border); border-radius: 4px; overflow: hidden; }
-  .heatmap-bar { height: 100%; border-radius: 4px; transition: width 0.6s cubic-bezier(0.34, 1.2, 0.64, 1); }
-  .heatmap-pct { font-family: 'Courier Prime', monospace; font-size: 10px; color: var(--muted); width: 28px; text-align: right; flex-shrink: 0; }
-  .log-list { display: flex; flex-direction: column; gap: 5px; max-height: 180px; overflow-y: auto; }
-  .log-list::-webkit-scrollbar { width: 3px; } .log-list::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
-  .log-item { display: flex; justify-content: space-between; align-items: center; gap: 7px; font-size: 11px; padding: 6px 9px; background: var(--surface2); border-radius: 6px; }
-  .log-item-left { display: flex; align-items: center; gap: 7px; }
-  .log-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
-  .log-text { color: var(--text); font-weight: 500; }
-  .log-meta { color: var(--muted); font-family: 'Courier Prime', monospace; font-size: 10px; }
-  .log-pct { font-family: 'Courier Prime', monospace; font-size: 10px; padding: 2px 6px; border-radius: 10px; background: var(--border); color: var(--muted2); flex-shrink: 0; }
-  .log-pct.good { background: var(--green-dim); color: var(--green); }
-  .log-pct.great { background: var(--accent-dim); color: var(--accent); }
-  .empty-state { text-align: center; padding: 28px 12px; color: var(--muted); font-size: 12px; line-height: 1.7; font-family: 'Courier Prime', monospace; }
-  .empty-state .big { font-size: 28px; margin-bottom: 8px; }
-  .reset-btn { display: block; width: 100%; margin-top: 10px; padding: 8px; background: transparent; border: 1px solid var(--border2); border-radius: 7px; color: var(--muted); font-family: 'Outfit', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; transition: all 0.2s; }
-  .reset-btn:hover { border-color: var(--red); color: var(--red); }
+  /* SIDEBAR */
+  .sidebar{display:flex;flex-direction:column;gap:13px;}
+  .sidebar-card{background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:16px 18px;}
+  .sidebar-card h3{font-family:'Courier Prime',monospace;font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;}
+  .streak-display{display:flex;align-items:baseline;gap:5px;margin-bottom:5px;}
+  .streak-num{font-family:'Bebas Neue',sans-serif;font-size:48px;color:var(--accent);line-height:1;}
+  .streak-unit{font-size:13px;color:var(--muted2);}
+  .streak-sub{font-size:11px;color:var(--muted);line-height:1.5;}
+  .week-dots{display:flex;gap:5px;margin-top:10px;}
+  .w-dot{flex:1;aspect-ratio:1;border-radius:4px;background:var(--border);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:10px;color:var(--muted);}
+  .w-dot.partial{background:rgba(232,255,71,0.2);color:var(--accent);}
+  .w-dot.full{background:var(--accent);color:#000;}
+  .w-dot.today-dot{outline:2px solid var(--accent);outline-offset:1px;}
+  .heatmap{display:flex;flex-direction:column;gap:7px;}
+  .heatmap-row{display:flex;align-items:center;gap:7px;}
+  .heatmap-day-label{font-family:'Bebas Neue',sans-serif;font-size:12px;color:var(--muted2);width:28px;flex-shrink:0;}
+  .heatmap-bar-wrap{flex:1;height:18px;background:var(--border);border-radius:4px;overflow:hidden;}
+  .heatmap-bar{height:100%;border-radius:4px;transition:width 0.6s cubic-bezier(0.34,1.2,0.64,1);}
+  .heatmap-pct{font-family:'Courier Prime',monospace;font-size:10px;color:var(--muted);width:28px;text-align:right;flex-shrink:0;}
+  .log-list{display:flex;flex-direction:column;gap:5px;max-height:180px;overflow-y:auto;}
+  .log-list::-webkit-scrollbar{width:3px;}.log-list::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+  .log-item{display:flex;justify-content:space-between;align-items:center;gap:7px;font-size:11px;padding:6px 9px;background:var(--surface2);border-radius:6px;}
+  .log-item-left{display:flex;align-items:center;gap:7px;}
+  .log-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+  .log-text{color:var(--text);font-weight:500;}
+  .log-meta{color:var(--muted);font-family:'Courier Prime',monospace;font-size:10px;}
+  .log-pct{font-family:'Courier Prime',monospace;font-size:10px;padding:2px 6px;border-radius:10px;background:var(--border);color:var(--muted2);flex-shrink:0;}
+  .log-pct.good{background:var(--green-dim);color:var(--green);}
+  .log-pct.great{background:var(--accent-dim);color:var(--accent);}
+  .empty-state{text-align:center;padding:28px 12px;color:var(--muted);font-size:12px;line-height:1.7;font-family:'Courier Prime',monospace;}
+  .empty-state .big{font-size:28px;margin-bottom:8px;}
+  .reset-btn{display:block;width:100%;margin-top:10px;padding:8px;background:transparent;border:1px solid var(--border2);border-radius:7px;color:var(--muted);font-family:'Outfit',sans-serif;font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;transition:all 0.2s;}
+  .reset-btn:hover{border-color:var(--red);color:var(--red);}
 
   /* MODAL */
-  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
-  .modal-overlay.show { opacity: 1; pointer-events: all; }
-  .modal { background: var(--surface); border: 1px solid var(--border2); border-radius: 16px; padding: 26px 22px; width: 100%; max-width: 380px; transform: translateY(20px); transition: transform 0.25s; }
-  .modal-overlay.show .modal { transform: translateY(0); }
-  .modal h2 { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 0.05em; color: var(--accent); margin-bottom: 5px; }
-  .modal-sub { font-size: 12px; color: var(--muted2); margin-bottom: 22px; line-height: 1.55; }
-  .modal-field { margin-bottom: 16px; }
-  .modal-field label { display: block; font-family: 'Courier Prime', monospace; font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
-  .time-select { width: 100%; background: var(--surface2); border: 1.5px solid var(--border2); color: var(--text); font-family: 'Outfit', sans-serif; font-size: 15px; font-weight: 500; padding: 10px 12px; border-radius: 8px; cursor: pointer; appearance: none; transition: border-color 0.2s; }
-  .time-select:focus { outline: none; border-color: var(--accent); }
-  .modal-days { display: flex; gap: 6px; flex-wrap: wrap; }
-  .modal-day-btn { padding: 7px 11px; border-radius: 7px; border: 1.5px solid var(--border2); background: var(--surface2); color: var(--muted2); font-family: 'Bebas Neue', sans-serif; font-size: 14px; letter-spacing: 0.05em; cursor: pointer; transition: all 0.15s; }
-  .modal-day-btn.selected { border-color: var(--accent); background: var(--accent-dim); color: var(--accent); }
-  .day-off-row { display: flex; align-items: center; gap: 10px; margin-top: 4px; }
-  .modal-btn { width: 100%; padding: 13px; background: var(--accent); border: none; border-radius: 9px; color: #000; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; cursor: pointer; margin-top: 20px; transition: opacity 0.2s; }
-  .modal-btn:hover { opacity: 0.9; }
-  .modal-cancel { display: block; text-align: center; margin-top: 12px; color: var(--muted); font-size: 12px; cursor: pointer; }
-  .modal-cancel:hover { color: var(--text); }
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.87);backdrop-filter:blur(8px);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity 0.25s;overflow-y:auto;}
+  .modal-overlay.show{opacity:1;pointer-events:all;}
+  .modal{background:var(--surface);border:1px solid var(--border2);border-radius:16px;padding:26px 22px;width:100%;max-width:400px;transform:translateY(20px);transition:transform 0.25s;margin:auto;}
+  .modal-overlay.show .modal{transform:translateY(0);}
+  .modal h2{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:0.05em;color:var(--accent);margin-bottom:5px;}
+  .modal-sub{font-size:12px;color:var(--muted2);margin-bottom:22px;line-height:1.55;}
+  .modal-field{margin-bottom:16px;}
+  .modal-field label{display:block;font-family:'Courier Prime',monospace;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+  .time-select{width:100%;background:var(--surface2);border:1.5px solid var(--border2);color:var(--text);font-family:'Outfit',sans-serif;font-size:15px;font-weight:500;padding:10px 12px;border-radius:8px;cursor:pointer;appearance:none;transition:border-color 0.2s;}
+  .time-select:focus{outline:none;border-color:var(--accent);}
+  .text-input{width:100%;background:var(--surface2);border:1.5px solid var(--border2);color:var(--text);font-family:'Outfit',sans-serif;font-size:14px;font-weight:400;padding:10px 12px;border-radius:8px;transition:border-color 0.2s;}
+  .text-input:focus{outline:none;border-color:var(--purple);}
+  .text-input::placeholder{color:var(--muted);}
+  .event-time-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .modal-days{display:flex;gap:6px;flex-wrap:wrap;}
+  .modal-day-btn{padding:7px 11px;border-radius:7px;border:1.5px solid var(--border2);background:var(--surface2);color:var(--muted2);font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:0.05em;cursor:pointer;transition:all 0.15s;}
+  .modal-day-btn.selected{border-color:var(--accent);background:var(--accent-dim);color:var(--accent);}
+  .day-off-row{display:flex;align-items:center;gap:10px;margin-top:4px;}
+  .divider{border:none;border-top:1px solid var(--border2);margin:18px 0;}
+  .event-section-title{font-family:'Courier Prime',monospace;font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:var(--purple);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+  .event-section-title::after{content:'';flex:1;height:1px;background:rgba(192,132,252,0.2);}
+  .events-list{display:flex;flex-direction:column;gap:6px;margin-bottom:12px;max-height:140px;overflow-y:auto;}
+  .event-item{display:flex;align-items:center;justify-content:space-between;background:rgba(192,132,252,0.08);border:1px solid rgba(192,132,252,0.2);border-radius:7px;padding:8px 10px;gap:8px;}
+  .event-item-text{font-size:12px;color:var(--text);font-weight:500;flex:1;}
+  .event-item-time{font-family:'Courier Prime',monospace;font-size:10px;color:var(--purple);}
+  .event-delete{background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:0 2px;line-height:1;transition:color 0.15s;}
+  .event-delete:hover{color:var(--red);}
+  .add-event-btn{width:100%;padding:9px;background:rgba(192,132,252,0.1);border:1px dashed rgba(192,132,252,0.3);border-radius:8px;color:var(--purple);font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.2s;}
+  .add-event-btn:hover{background:rgba(192,132,252,0.18);border-style:solid;}
+  .modal-btn{width:100%;padding:13px;background:var(--accent);border:none;border-radius:9px;color:#000;font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;margin-top:20px;transition:opacity 0.2s;}
+  .modal-btn:hover{opacity:0.9;}
+  .modal-cancel{display:block;text-align:center;margin-top:12px;color:var(--muted);font-size:12px;cursor:pointer;}
+  .modal-cancel:hover{color:var(--text);}
 
-  .toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--surface2); border: 1px solid var(--border2); color: var(--text); padding: 11px 18px; border-radius: 10px; font-size: 13px; font-weight: 500; z-index: 999; transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); pointer-events: none; white-space: nowrap; }
-  .toast.show { transform: translateX(-50%) translateY(0); }
+  /* TOAST */
+  .toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--surface2);border:1px solid var(--border2);color:var(--text);padding:11px 18px;border-radius:10px;font-size:13px;font-weight:500;z-index:999;transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1);pointer-events:none;white-space:nowrap;}
+  .toast.show{transform:translateX(-50%) translateY(0);}
 
-  @media (max-width: 700px) { .content { grid-template-columns: 1fr; } .sidebar { display: grid; grid-template-columns: 1fr 1fr; } }
-  @media (max-width: 480px) { .sidebar { grid-template-columns: 1fr; } }
+  @media(max-width:700px){.content{grid-template-columns:1fr;}.sidebar{display:grid;grid-template-columns:1fr 1fr;}}
+  @media(max-width:480px){.sidebar{grid-template-columns:1fr;}.water-bottles{gap:5px;}.bottle{min-width:44px;padding:5px 6px;}}
 </style>
 </head>
 <body>
@@ -161,9 +205,10 @@
 </div>
 
 <div class="shift-banner">
-  <div>
+  <div class="shift-banner-left">
     <div class="shift-banner-label">Today's Shift</div>
     <div class="shift-banner-time" id="shift-display"><span class="no-shift-set">Tap to set shift</span></div>
+    <div id="event-display"></div>
   </div>
   <button class="edit-shift-btn" onclick="openShiftModal()">⚙ Set Shift</button>
 </div>
@@ -176,13 +221,22 @@
   <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
 </div>
 
+<!-- WATER TRACKER -->
 <div class="water-card">
   <div class="water-header">
     <div class="water-title">💧 Water Tracker</div>
-    <div class="water-count-label" id="water-count">0 / 8</div>
+    <div class="water-right">
+      <div>
+        <div class="water-count-label" id="water-count">0 / 4</div>
+        <div class="water-oz" id="water-oz">0 / 67.6 oz</div>
+      </div>
+    </div>
   </div>
-  <div class="water-cups" id="water-cups"></div>
-  <div class="water-note">Goal: <span>8 cups (64 oz)</span> — swap any sugary drink for water</div>
+  <div class="water-progress-wrap">
+    <div class="water-progress-track"><div class="water-progress-fill" id="water-progress-fill"></div></div>
+  </div>
+  <div class="water-bottles" id="water-bottles"></div>
+  <div class="water-note">Goal: <span>4 bottles (67.6 oz)</span> of water daily — cut the sugary drinks</div>
 </div>
 
 <div class="content">
@@ -210,7 +264,8 @@
 <div class="modal-overlay" id="shift-modal">
   <div class="modal">
     <h2>Set Your Shift</h2>
-    <p class="modal-sub">What day and what hours? I'll build the full schedule around your work time.</p>
+    <p class="modal-sub">Pick the day, set your work hours, and add any special events happening that day.</p>
+
     <div class="modal-field">
       <label>Which day?</label>
       <div class="modal-days" id="modal-days"></div>
@@ -227,9 +282,36 @@
       <label>Day Off?</label>
       <div class="day-off-row">
         <input type="checkbox" id="day-off-check" style="width:16px;height:16px;accent-color:var(--accent);cursor:pointer">
-        <span style="font-size:13px;color:var(--muted2)">No work today — give me the day-off schedule</span>
+        <span style="font-size:13px;color:var(--muted2)">No work — give me the day-off schedule</span>
       </div>
     </div>
+
+    <hr class="divider">
+
+    <div class="event-section-title">Special Events</div>
+
+    <div class="events-list" id="events-list"></div>
+
+    <div id="add-event-form" style="display:none;background:var(--surface2);border:1px solid rgba(192,132,252,0.2);border-radius:9px;padding:12px;margin-bottom:10px;">
+      <div class="modal-field" style="margin-bottom:10px;">
+        <label>Event Name</label>
+        <input type="text" class="text-input" id="event-name" placeholder="e.g. Doctor's appointment, Birthday dinner…">
+      </div>
+      <div class="modal-field" style="margin-bottom:10px;">
+        <label>Time (optional)</label>
+        <div class="event-time-row">
+          <select class="time-select" id="event-start" style="font-size:13px;padding:8px 10px;"></select>
+          <select class="time-select" id="event-end" style="font-size:13px;padding:8px 10px;"></select>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button onclick="addEvent()" style="flex:1;padding:8px;background:var(--purple);border:none;border-radius:7px;color:#fff;font-family:'Outfit',sans-serif;font-size:12px;font-weight:700;cursor:pointer;">Add Event</button>
+        <button onclick="document.getElementById('add-event-form').style.display='none'" style="padding:8px 14px;background:transparent;border:1px solid var(--border2);border-radius:7px;color:var(--muted);font-family:'Outfit',sans-serif;font-size:12px;cursor:pointer;">Cancel</button>
+      </div>
+    </div>
+
+    <button class="add-event-btn" id="add-event-toggle" onclick="toggleEventForm()">+ Add Special Event</button>
+
     <button class="modal-btn" onclick="saveShift()">Build My Schedule</button>
     <span class="modal-cancel" onclick="closeShiftModal()">Cancel</span>
   </div>
@@ -238,192 +320,358 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
-const DAY_SHORT = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+// ── CONSTANTS ──
+const DAYS=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+const DAY_SHORT=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+// 4 bottles of 16.9 fl oz = 67.6 oz total
+const BOTTLE_OZ = 16.9;
+const BOTTLE_GOAL = 4;
 
-const TAG = {
-  bible:  { color: '#fbbf24', bg: 'rgba(251,191,36,0.12)',  label: 'Faith' },
-  work:   { color: '#60a5fa', bg: 'rgba(96,165,250,0.12)',  label: 'Work' },
-  gym:    { color: '#4ade80', bg: 'rgba(74,222,128,0.12)',  label: 'Gym' },
-  run:    { color: '#2dd4bf', bg: 'rgba(45,212,191,0.12)',  label: 'Cardio' },
-  linalg: { color: '#c084fc', bg: 'rgba(192,132,252,0.12)', label: 'Study' },
-  jobs:   { color: '#fb923c', bg: 'rgba(251,146,60,0.12)',  label: 'Career' },
-  leet:   { color: '#f472b6', bg: 'rgba(244,114,182,0.12)', label: 'LeetCode' },
-  food:   { color: '#a3a3a3', bg: 'rgba(163,163,163,0.08)', label: 'Nutrition' },
-  travel: { color: '#6b7280', bg: 'rgba(107,114,128,0.08)', label: 'Travel' },
-  free:   { color: '#555',    bg: 'rgba(80,80,80,0.08)',    label: 'Rest' },
+const TAG={
+  bible:{color:'#fbbf24',bg:'rgba(251,191,36,0.12)',label:'Faith'},
+  work:{color:'#60a5fa',bg:'rgba(96,165,250,0.12)',label:'Work'},
+  gym:{color:'#4ade80',bg:'rgba(74,222,128,0.12)',label:'Gym'},
+  run:{color:'#2dd4bf',bg:'rgba(45,212,191,0.12)',label:'Cardio'},
+  linalg:{color:'#c084fc',bg:'rgba(192,132,252,0.12)',label:'Study'},
+  jobs:{color:'#fb923c',bg:'rgba(251,146,60,0.12)',label:'Career'},
+  leet:{color:'#f472b6',bg:'rgba(244,114,182,0.12)',label:'LeetCode'},
+  food:{color:'#a3a3a3',bg:'rgba(163,163,163,0.08)',label:'Nutrition'},
+  travel:{color:'#6b7280',bg:'rgba(107,114,128,0.08)',label:'Travel'},
+  free:{color:'#555',bg:'rgba(80,80,80,0.08)',label:'Rest'},
+  event:{color:'#c084fc',bg:'rgba(192,132,252,0.12)',label:'Event'},
 };
 
-function fmtTime(mins) {
-  const h = Math.floor(mins/60)%24, m = mins%60;
-  const ampm = h>=12?'PM':'AM', h12 = h%12||12;
-  return `${h12}:${m.toString().padStart(2,'0')} ${ampm}`;
+// ── TIME UTILS ──
+function fmtTime(mins){
+  const h=Math.floor(mins/60)%24,m=mins%60;
+  const ap=h>=12?'PM':'AM',h12=h%12||12;
+  return `${h12}:${m.toString().padStart(2,'0')} ${ap}`;
 }
-function fmtDur(mins) {
-  const h = Math.floor(mins/60), m = mins%60;
-  if(h===0) return `${m} min`;
-  if(m===0) return `${h} hr${h>1?'s':''}`;
-  return `${h} hr ${m} min`;
+function fmtDur(mins){
+  const h=Math.floor(mins/60),m=mins%60;
+  if(h===0)return`${m} min`;
+  if(m===0)return`${h} hr${h>1?'s':''}`;
+  return`${h} hr ${m} min`;
 }
-function parseTime(str) {
-  const [time, ampm] = str.split(' ');
-  let [h,m] = time.split(':').map(Number);
-  if(ampm==='PM'&&h!==12) h+=12;
-  if(ampm==='AM'&&h===12) h=0;
+function parseTime(str){
+  const[time,ap]=str.split(' ');
+  let[h,m]=time.split(':').map(Number);
+  if(ap==='PM'&&h!==12)h+=12;
+  if(ap==='AM'&&h===12)h=0;
   return h*60+m;
 }
 
-function buildSchedule(startMin, endMin, dayOff) {
-  const T = [];
-  const add = (time, dur, label, note, tag) => T.push({time, dur, label, note, tag});
+// ── DATE UTILS ──
+// Returns "YYYY-MM-DD" for the actual calendar date of a given day name in the current week
+// Week anchored to actual real-world dates starting Monday
+function getWeekDates(){
+  const now=new Date();
+  // Get Monday of current week
+  const day=now.getDay(); // 0=Sun
+  const diff=(day===0)?-6:1-day; // days to subtract to get to Monday
+  const mon=new Date(now);
+  mon.setDate(now.getDate()+diff);
+  const dates={};
+  DAYS.forEach((d,i)=>{
+    const dt=new Date(mon);
+    dt.setDate(mon.getDate()+i);
+    dates[d]=dt.toISOString().split('T')[0];
+  });
+  return dates;
+}
 
-  const wakeTime = dayOff ? 8*60 : Math.max(6*60, startMin - 105);
-  add(wakeTime, 25, '📖 Bible Study', 'First thing — anchor the day before anything else', 'bible');
-  add(wakeTime+30, 30, '🍳 Breakfast', 'High protein + complex carbs — eat for gains', 'food');
+function todayDateStr(){
+  return new Date().toISOString().split('T')[0];
+}
 
-  if (!dayOff) {
-    const morning = startMin < 12*60;
-    if (morning) {
-      add(startMin-20, 20, '🚗 Travel to Work', '20 min drive', 'travel');
-      add(startMin, endMin-startMin, '💼 Work', `${fmtTime(startMin)} – ${fmtTime(endMin)}`, 'work');
-      add(endMin, 20, '🚗 Travel Home', '20 min drive', 'travel');
-      add(endMin+25, 30, '🥗 Dinner', 'Big post-work meal — fuel the evening', 'food');
-      add(endMin+60, 70, '💪 Gym', '10 min drive + 1 hr lift', 'gym');
-      add(endMin+135, 30, '💻 LeetCode', '1 problem — daily non-negotiable', 'leet');
-      add(endMin+170, 60, '📚 Linear Algebra', 'Study session', 'linalg');
-      add(endMin+235, 20, '🌙 Snack + Wind Down', 'Protein snack, water, wind down', 'food');
+function todayDayName(){
+  return DAYS[((new Date().getDay()+6)%7)]; // Monday=0
+}
+
+// Session key is now DATE_DayName for strict date binding
+function sessKey(day){
+  const wd=getWeekDates();
+  return `${wd[day]}_${day}`;
+}
+
+// ── SCHEDULE BUILDER ──
+function buildSchedule(startMin,endMin,dayOff,events){
+  const T=[];
+  const add=(time,dur,label,note,tag,isEvent)=>T.push({time,dur,label,note,tag,isEvent:!!isEvent});
+  const wakeTime=dayOff?8*60:Math.max(6*60,startMin-105);
+
+  add(wakeTime,25,'📖 Bible Study','First thing — anchor the day before anything else','bible');
+  add(wakeTime+30,30,'🍳 Breakfast','High protein + complex carbs — eat for gains','food');
+
+  // Inject events into schedule
+  if(events&&events.length){
+    events.forEach(ev=>{
+      const st=parseTime(ev.start);
+      const en=parseTime(ev.end);
+      const dur=en-st;
+      add(st,dur>0?dur:60,`🗓️ ${ev.name}`,ev.start+' – '+ev.end,'event',true);
+    });
+  }
+
+  if(!dayOff){
+    const morning=startMin<12*60;
+    if(morning){
+      add(startMin-20,20,'🚗 Travel to Work','20 min drive','travel');
+      add(startMin,endMin-startMin,'💼 Work',`${fmtTime(startMin)} – ${fmtTime(endMin)}`,'work');
+      add(endMin,20,'🚗 Travel Home','20 min drive','travel');
+      add(endMin+25,30,'🥗 Dinner','Big post-work meal — fuel the evening','food');
+      add(endMin+60,70,'💪 Gym','10 min drive + 1 hr lift','gym');
+      add(endMin+135,30,'💻 LeetCode','1 problem — daily non-negotiable','leet');
+      add(endMin+170,60,'📚 Linear Algebra','Study session','linalg');
+      add(endMin+235,20,'🌙 Snack + Wind Down','Protein snack, water, wind down','food');
     } else {
-      // Evening shift — productive morning
-      const base = wakeTime+65;
-      add(base,    70, '💪 Gym', '10 min drive + 1 hr lift', 'gym');
-      add(base+75, 30, '💻 LeetCode', '1 problem — daily non-negotiable', 'leet');
-      add(base+110,60, '📚 Linear Algebra', 'Study while your brain is fresh', 'linalg');
-      add(base+175,45, '💼 Job Applications', '45 min focused — quality over quantity', 'jobs');
-      add(startMin-90, 30, '🥗 Lunch', 'Big pre-work meal', 'food');
-      add(startMin-20, 20, '🚗 Travel to Work', '20 min drive', 'travel');
-      add(startMin, endMin-startMin, '💼 Work', `${fmtTime(startMin)} – ${fmtTime(endMin)}`, 'work');
-      add(endMin,   20, '🚗 Travel Home', '20 min drive', 'travel');
-      add(endMin+25,30, '🍽️ Dinner', 'Protein + healthy fats', 'food');
+      const base=wakeTime+65;
+      add(base,70,'💪 Gym','10 min drive + 1 hr lift','gym');
+      add(base+75,30,'💻 LeetCode','1 problem — daily non-negotiable','leet');
+      add(base+110,60,'📚 Linear Algebra','Study while your brain is fresh','linalg');
+      add(base+175,45,'💼 Job Applications','45 min focused — quality over quantity','jobs');
+      add(startMin-90,30,'🥗 Lunch','Big pre-work meal','food');
+      add(startMin-20,20,'🚗 Travel to Work','20 min drive','travel');
+      add(startMin,endMin-startMin,'💼 Work',`${fmtTime(startMin)} – ${fmtTime(endMin)}`,'work');
+      add(endMin,20,'🚗 Travel Home','20 min drive','travel');
+      add(endMin+25,30,'🍽️ Dinner','Protein + healthy fats','food');
     }
   } else {
-    // Day off
-    const base = wakeTime+65;
-    add(base,    40,  '🏃 Run', 'Weekly cardio — your pace, your distance', 'run');
-    add(base+50, 120, '📚 Linear Algebra', '2 hr deep work block — no distractions', 'linalg');
-    add(base+175,30,  '🥗 Lunch', 'Fuel up', 'food');
-    add(base+210,45,  '💼 Job Applications', 'Quality focused applications', 'jobs');
-    add(base+260,30,  '💻 LeetCode', '1 problem', 'leet');
-    add(base+295,120, '🎉 Free Time', 'Rest, friends, recharge — no guilt', 'free');
-    add(19*60,   30,  '🍽️ Dinner', 'High calorie evening meal', 'food');
-    add(20*60,   20,  '🗓️ Set Tomorrow\'s Shift', 'Open the app tonight and set tomorrow\'s work time', 'free');
+    const base=wakeTime+65;
+    add(base,40,'🏃 Run','Weekly cardio — your pace, your distance','run');
+    add(base+50,120,'📚 Linear Algebra','2 hr deep work block — no distractions','linalg');
+    add(base+175,30,'🥗 Lunch','Fuel up','food');
+    add(base+210,45,'💼 Job Applications','Quality focused applications','jobs');
+    add(base+260,30,'💻 LeetCode','1 problem','leet');
+    add(base+295,120,'🎉 Free Time','Rest, friends, recharge — no guilt','free');
+    add(19*60,30,'🍽️ Dinner','High calorie evening meal','food');
+    add(20*60,20,"🗓️ Set Tomorrow's Shift","Open the app tonight and set tomorrow's work hours",'free');
   }
 
   T.sort((a,b)=>a.time-b.time);
-  return T.map(t => ({...t, timeStr: fmtTime(t.time), durStr: fmtDur(t.dur)}));
+  return T.map(t=>({...t,timeStr:fmtTime(t.time),durStr:fmtDur(t.dur)}));
 }
 
 // ── STATE ──
-let state = { activeDay: 'Monday', shifts: {}, history: {} };
-const SK = 'seans_daily_ops_v3';
+let state={activeDay:todayDayName(),shifts:{},history:{}};
+const SK='seans_daily_ops_v4';
 
-function loadState() {
-  try { const s = JSON.parse(localStorage.getItem(SK)); if(s){state.shifts=s.shifts||{};state.history=s.history||{};} } catch(e){}
+function loadState(){
+  try{const s=JSON.parse(localStorage.getItem(SK));if(s){state.shifts=s.shifts||{};state.history=s.history||{};}}catch(e){}
 }
-function saveState() {
-  try { localStorage.setItem(SK, JSON.stringify({shifts:state.shifts,history:state.history})); } catch(e){}
+function saveState(){
+  try{localStorage.setItem(SK,JSON.stringify({shifts:state.shifts,history:state.history}));}catch(e){}
 }
-function todayKey() { return new Date().toISOString().split('T')[0]; }
-function sessKey(day) { return `${todayKey()}_${day}`; }
-function getShift(day) { return state.shifts[day]||null; }
-function getSess(day) { return state.history[sessKey(day)]||null; }
-function ensureSess(day) {
-  const k=sessKey(day), shift=getShift(day);
-  const tasks=shift?buildSchedule(shift.dayOff?null:parseTime(shift.start),shift.dayOff?null:parseTime(shift.end),shift.dayOff):[];
-  if(!state.history[k]) state.history[k]={done:[],total:tasks.length,water:0};
+
+function getShift(day){return state.shifts[day]||null;}
+
+function getSess(day){return state.history[sessKey(day)]||null;}
+
+function ensureSess(day){
+  const k=sessKey(day),shift=getShift(day);
+  const tasks=shift?buildSchedule(
+    shift.dayOff?null:parseTime(shift.start),
+    shift.dayOff?null:parseTime(shift.end),
+    shift.dayOff,
+    shift.events||[]
+  ):[];
+  if(!state.history[k])state.history[k]={done:[],total:tasks.length,water:0};
   state.history[k].total=tasks.length;
   return state.history[k];
 }
 
-// ── MODAL ──
-let modalDay = null;
-function openShiftModal() {
-  modalDay = state.activeDay;
-  const times = [];
-  for(let h=5;h<=23;h++) for(let m of [0,30]) {
-    const ap=h>=12?'PM':'AM', h12=h%12||12;
-    times.push(`${h12}:${m.toString().padStart(2,'0')} ${ap}`);
-  }
-  const ss=document.getElementById('shift-start'), se=document.getElementById('shift-end');
-  ss.innerHTML=se.innerHTML=times.map(t=>`<option value="${t}">${t}</option>`).join('');
+// ── MODAL STATE ──
+let modalDay=null;
+let pendingEvents=[]; // events being edited in modal
 
-  document.getElementById('modal-days').innerHTML = DAYS.map((d,i)=>
+function generateTimeOptions(){
+  const t=[];
+  for(let h=5;h<=23;h++)for(let m of[0,30]){
+    const ap=h>=12?'PM':'AM',h12=h%12||12;
+    t.push(`${h12}:${m.toString().padStart(2,'0')} ${ap}`);
+  }
+  return t;
+}
+
+function populateTimeSelect(id,defaultVal){
+  const el=document.getElementById(id);
+  const times=generateTimeOptions();
+  el.innerHTML=times.map(t=>`<option value="${t}">${t}</option>`).join('');
+  if(defaultVal)el.value=defaultVal;
+}
+
+function openShiftModal(){
+  modalDay=state.activeDay;
+  populateTimeSelect('shift-start','9:00 AM');
+  populateTimeSelect('shift-end','5:00 PM');
+  populateTimeSelect('event-start','9:00 AM');
+  populateTimeSelect('event-end','10:00 AM');
+
+  // Build day buttons
+  document.getElementById('modal-days').innerHTML=DAYS.map((d,i)=>
     `<button class="modal-day-btn ${d===modalDay?'selected':''}" onclick="selModalDay('${d}',this)">${DAY_SHORT[i]}</button>`
   ).join('');
 
+  // Load existing shift
   const ex=getShift(modalDay);
-  ss.value=ex?.start||'9:00 AM'; se.value=ex?.end||'5:00 PM';
-  document.getElementById('day-off-check').checked=ex?.dayOff||false;
+  if(ex){
+    document.getElementById('shift-start').value=ex.start||'9:00 AM';
+    document.getElementById('shift-end').value=ex.end||'5:00 PM';
+    document.getElementById('day-off-check').checked=ex.dayOff||false;
+    pendingEvents=[...(ex.events||[])];
+  } else {
+    document.getElementById('day-off-check').checked=false;
+    pendingEvents=[];
+  }
+
+  document.getElementById('add-event-form').style.display='none';
+  document.getElementById('event-name').value='';
+  renderModalEvents();
   document.getElementById('shift-modal').classList.add('show');
 }
-function selModalDay(day,btn) {
+
+function selModalDay(day,btn){
   modalDay=day;
   document.querySelectorAll('.modal-day-btn').forEach(b=>b.classList.remove('selected'));
   btn.classList.add('selected');
   const ex=getShift(day);
-  if(ex){document.getElementById('shift-start').value=ex.start||'9:00 AM';document.getElementById('shift-end').value=ex.end||'5:00 PM';document.getElementById('day-off-check').checked=ex.dayOff||false;}
+  if(ex){
+    document.getElementById('shift-start').value=ex.start||'9:00 AM';
+    document.getElementById('shift-end').value=ex.end||'5:00 PM';
+    document.getElementById('day-off-check').checked=ex.dayOff||false;
+    pendingEvents=[...(ex.events||[])];
+  } else {
+    document.getElementById('day-off-check').checked=false;
+    pendingEvents=[];
+  }
+  renderModalEvents();
 }
-function closeShiftModal() { document.getElementById('shift-modal').classList.remove('show'); }
-function saveShift() {
+
+function toggleEventForm(){
+  const form=document.getElementById('add-event-form');
+  const isHidden=form.style.display==='none'||form.style.display==='';
+  form.style.display=isHidden?'block':'none';
+  if(isHidden) document.getElementById('event-name').focus();
+}
+
+function addEvent(){
+  const name=document.getElementById('event-name').value.trim();
+  if(!name){showToast('⚠️ Enter an event name');return;}
+  const start=document.getElementById('event-start').value;
+  const end=document.getElementById('event-end').value;
+  pendingEvents.push({name,start,end});
+  document.getElementById('event-name').value='';
+  document.getElementById('add-event-form').style.display='none';
+  renderModalEvents();
+}
+
+function removeEvent(i){
+  pendingEvents.splice(i,1);
+  renderModalEvents();
+}
+
+function renderModalEvents(){
+  const el=document.getElementById('events-list');
+  if(!pendingEvents.length){
+    el.innerHTML=`<div style="font-size:11px;color:var(--muted);font-family:'Courier Prime',monospace;text-align:center;padding:8px;">No events added yet</div>`;
+    return;
+  }
+  el.innerHTML=pendingEvents.map((ev,i)=>`
+    <div class="event-item">
+      <div>
+        <div class="event-item-text">${ev.name}</div>
+        <div class="event-item-time">${ev.start} – ${ev.end}</div>
+      </div>
+      <button class="event-delete" onclick="removeEvent(${i})">✕</button>
+    </div>
+  `).join('');
+}
+
+function closeShiftModal(){document.getElementById('shift-modal').classList.remove('show');}
+
+function saveShift(){
   const start=document.getElementById('shift-start').value;
   const end=document.getElementById('shift-end').value;
   const dayOff=document.getElementById('day-off-check').checked;
-  if(!dayOff && parseTime(start)>=parseTime(end)){showToast('⚠️ End time must be after start');return;}
-  state.shifts[modalDay]={start,end,dayOff};
+  if(!dayOff&&parseTime(start)>=parseTime(end)){showToast('⚠️ End time must be after start');return;}
+  state.shifts[modalDay]={start,end,dayOff,events:[...pendingEvents]};
+  // Clear session so task count rebuilds
   delete state.history[sessKey(modalDay)];
-  saveState(); closeShiftModal(); renderAll();
-  showToast(dayOff?`${modalDay} set as day off 🌿`:`${modalDay}: ${start} – ${end} ✓`);
+  saveState();closeShiftModal();renderAll();
+  const evText=pendingEvents.length?` + ${pendingEvents.length} event${pendingEvents.length>1?'s':''}`:''
+  showToast(dayOff?`${modalDay} set as day off 🌿`:`${modalDay}: ${start} – ${end}${evText} ✓`);
 }
 
 // ── RENDER ──
-function renderAll() { renderPills(); renderBanner(); renderTasks(); renderWater(); renderSidebar(); }
+function renderAll(){renderPills();renderBanner();renderTasks();renderWater();renderSidebar();}
 
-function renderPills() {
-  document.getElementById('day-pills').innerHTML = DAYS.map((day,i)=>{
-    const sess=getSess(day), isActive=day===state.activeDay;
+function renderPills(){
+  const wd=getWeekDates();
+  const todayStr=todayDateStr();
+  document.getElementById('day-pills').innerHTML=DAYS.map((day,i)=>{
+    const sess=getSess(day),isActive=day===state.activeDay;
     const pct=sess&&sess.total>0?Math.round(sess.done.length/sess.total*100):0;
     const shift=getShift(day);
     const sub=sess&&sess.done.length>0?pct+'%':(shift?(shift.dayOff?'Off':shift.start.replace(':00','').replace(' ','').toLowerCase()):'—');
-    return `<div class="day-pill ${isActive?'active':''} ${sess&&sess.done.length>0?'has-history':''}" onclick="selectDay('${day}')">
+    const isToday=wd[day]===todayStr;
+    // Format date for pill
+    const dt=new Date(wd[day]+'T12:00:00');
+    const dateLabel=dt.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+    return `<div class="day-pill ${isActive?'active':''} ${sess&&sess.done.length>0?'has-history':''} ${isToday?'today-pill':''}" onclick="selectDay('${day}')">
       <div class="pill-done-dot"></div>
       <div class="pill-name">${DAY_SHORT[i]}</div>
+      <div class="pill-date">${dateLabel}</div>
       <div class="pill-sub">${sub}</div>
     </div>`;
   }).join('');
 }
 
-function renderBanner() {
+function renderBanner(){
   const shift=getShift(state.activeDay);
   const el=document.getElementById('shift-display');
+  const evEl=document.getElementById('event-display');
   const btn=document.querySelector('.edit-shift-btn');
-  if(!shift){el.innerHTML=`<span class="no-shift-set">Tap to set shift</span>`;btn.textContent='⚙ Set Shift';}
-  else if(shift.dayOff){el.innerHTML=`<span style="color:var(--green)">Day Off 🌿</span>`;btn.textContent='✏ Edit';}
-  else{el.innerHTML=`<span>${shift.start}</span> → <span>${shift.end}</span>`;btn.textContent='✏ Edit';}
+  if(!shift){
+    el.innerHTML=`<span class="no-shift-set">Tap to set shift</span>`;
+    btn.textContent='⚙ Set Shift';
+    evEl.innerHTML='';
+  } else if(shift.dayOff){
+    el.innerHTML=`<span style="color:var(--green)">Day Off 🌿</span>`;
+    btn.textContent='✏ Edit';
+    evEl.innerHTML='';
+  } else {
+    el.innerHTML=`<span>${shift.start}</span> → <span>${shift.end}</span>`;
+    btn.textContent='✏ Edit';
+    // Show events
+    if(shift.events&&shift.events.length){
+      evEl.innerHTML=shift.events.map(ev=>
+        `<span class="event-badge">🗓️ ${ev.name} · ${ev.start}</span>`
+      ).join('');
+    } else {
+      evEl.innerHTML='';
+    }
+  }
 }
 
-function renderTasks() {
-  const day=state.activeDay, shift=getShift(day);
+function renderTasks(){
+  const day=state.activeDay,shift=getShift(day);
   const container=document.getElementById('task-list');
   if(!shift){
-    container.innerHTML=`<div class="empty-state"><div class="big">⚙️</div>No shift set for ${day}.<br><strong style="color:var(--accent)">Tap "Set Shift"</strong> above to build your schedule.<br><br><span style="color:var(--muted2);font-size:11px">Tip: set tomorrow's shift tonight so it's ready when you wake up.</span></div>`;
+    container.innerHTML=`<div class="empty-state"><div class="big">⚙️</div>No shift set for ${day}.<br><strong style="color:var(--accent)">Tap "Set Shift"</strong> above to build your schedule.<br><br><span style="color:var(--muted2);font-size:11px">Tip: set tomorrow's shift the night before.</span></div>`;
     document.getElementById('progress-count').textContent='— / —';
     document.getElementById('progress-fill').style.width='0%';
     return;
   }
-  const tasks=buildSchedule(shift.dayOff?null:parseTime(shift.start),shift.dayOff?null:parseTime(shift.end),shift.dayOff);
+  const tasks=buildSchedule(
+    shift.dayOff?null:parseTime(shift.start),
+    shift.dayOff?null:parseTime(shift.end),
+    shift.dayOff,
+    shift.events||[]
+  );
   const sess=ensureSess(day);
   container.innerHTML=tasks.map((t,i)=>{
-    const done=sess.done.includes(i), tag=TAG[t.tag];
-    return `<div class="task-card ${done?'done':''}" style="--card-color:${tag.color}" onclick="toggleTask(${i})">
+    const done=sess.done.includes(i),tag=TAG[t.tag];
+    return `<div class="task-card ${done?'done':''} ${t.isEvent?'event-task':''}" style="--card-color:${tag.color}" onclick="toggleTask(${i})">
       <div class="task-check">${done?'✓':''}</div>
       <div class="task-body">
         <div class="task-top"><div class="task-time">${t.timeStr}</div><div class="task-duration">${t.durStr}</div></div>
@@ -433,115 +681,158 @@ function renderTasks() {
       </div>
     </div>`;
   }).join('');
-  renderProgress(sess, tasks.length);
+  renderProgress(sess,tasks.length);
 }
 
-function renderProgress(sess, total) {
-  const done=sess?sess.done.length:0, pct=total>0?Math.round(done/total*100):0;
+function renderProgress(sess,total){
+  const done=sess?sess.done.length:0,pct=total>0?Math.round(done/total*100):0;
   document.getElementById('progress-count').textContent=`${done} / ${total}`;
   document.getElementById('progress-fill').style.width=pct+'%';
 }
 
-function renderWater() {
+function renderWater(){
   const sess=getSess(state.activeDay)||{water:0};
-  const cups=sess.water||0;
-  document.getElementById('water-count').textContent=`${cups} / 8`;
-  document.getElementById('water-cups').innerHTML=Array.from({length:8},(_,i)=>
-    `<div class="cup ${i<cups?'filled':''}" onclick="tapWater(${i})">💧</div>`
-  ).join('');
+  const bottles=sess.water||0;
+  const ozDone=(bottles*BOTTLE_OZ).toFixed(1);
+  const ozTotal=(BOTTLE_GOAL*BOTTLE_OZ).toFixed(1);
+  const pct=Math.round(bottles/BOTTLE_GOAL*100);
+
+  document.getElementById('water-count').textContent=`${bottles} / ${BOTTLE_GOAL}`;
+  document.getElementById('water-oz').textContent=`${ozDone} / ${ozTotal} oz`;
+  document.getElementById('water-progress-fill').style.width=pct+'%';
+
+  document.getElementById('water-bottles').innerHTML=Array.from({length:BOTTLE_GOAL},(_,i)=>`
+    <div class="bottle ${i<bottles?'filled':''}" onclick="tapWater(${i})">
+      <div class="bottle-icon">🍶</div>
+      <div class="bottle-label">${BOTTLE_OZ} oz</div>
+    </div>
+  `).join('');
 }
 
-function renderSidebar() {
-  // Streak
-  const dates=Object.entries(state.history).filter(([k,v])=>v.done.length>0).map(([k])=>k.split('_')[0]).filter((v,i,a)=>a.indexOf(v)===i).sort();
-  let streak=0; const d=new Date();
+function renderSidebar(){
+  // Streak — count consecutive calendar dates with any done tasks
+  const doneDates=Object.entries(state.history)
+    .filter(([k,v])=>v.done.length>0)
+    .map(([k])=>k.split('_')[0])
+    .filter((v,i,a)=>a.indexOf(v)===i)
+    .sort();
+
+  let streak=0;
+  const d=new Date();
   for(let i=0;i<365;i++){
     const ds=d.toISOString().split('T')[0];
-    if(dates.includes(ds)){streak++;d.setDate(d.getDate()-1);}
+    if(doneDates.includes(ds)){streak++;d.setDate(d.getDate()-1);}
     else if(i===0){d.setDate(d.getDate()-1);}
     else break;
   }
   document.getElementById('streak-num').textContent=streak;
-  document.getElementById('streak-sub').textContent=streak===0?'Complete tasks to start your streak.':streak===1?'Day 1. Every legend starts here.':streak<7?`${streak} days strong. Build the habit.`:`${streak} days. This is who you are now.`;
+  document.getElementById('streak-sub').textContent=
+    streak===0?'Complete tasks to start your streak.':
+    streak===1?'Day 1. Every legend starts here.':
+    streak<7?`${streak} days strong. Build the habit.`:
+    `${streak} days. This is who you are now.`;
+
+  // Week dots — keyed to actual dates
+  const wd=getWeekDates(),todayStr=todayDateStr();
   document.getElementById('week-dots').innerHTML=DAYS.map((day,i)=>{
-    const s=getSess(day); const pct=s&&s.total>0?s.done.length/s.total:0;
-    return `<div class="w-dot ${pct===0?'':pct>=1?'full':'partial'}">${DAY_SHORT[i].charAt(0)}</div>`;
+    const s=getSess(day);
+    const pct=s&&s.total>0?s.done.length/s.total:0;
+    const isToday=wd[day]===todayStr;
+    return `<div class="w-dot ${pct===0?'':pct>=1?'full':'partial'} ${isToday?'today-dot':''}">${DAY_SHORT[i].charAt(0)}</div>`;
   }).join('');
 
   // Heatmap
   document.getElementById('heatmap').innerHTML=DAYS.map((day,i)=>{
-    const s=getSess(day); const pct=s&&s.total>0?s.done.length/s.total:0;
+    const s=getSess(day);const pct=s&&s.total>0?s.done.length/s.total:0;
     const color=pct===0?'#222':pct<0.5?'#fb923c':pct<1?'#e8ff47':'#4ade80';
-    return `<div class="heatmap-row"><div class="heatmap-day-label">${DAY_SHORT[i]}</div><div class="heatmap-bar-wrap"><div class="heatmap-bar" style="width:${Math.round(pct*100)}%;background:${color}"></div></div><div class="heatmap-pct">${s&&s.total>0?Math.round(pct*100)+'%':'—'}</div></div>`;
+    return `<div class="heatmap-row">
+      <div class="heatmap-day-label">${DAY_SHORT[i]}</div>
+      <div class="heatmap-bar-wrap"><div class="heatmap-bar" style="width:${Math.round(pct*100)}%;background:${color}"></div></div>
+      <div class="heatmap-pct">${s&&s.total>0?Math.round(pct*100)+'%':'—'}</div>
+    </div>`;
   }).join('');
 
   // Log
-  const entries=Object.entries(state.history).filter(([k,v])=>v.done.length>0).sort(([a],[b])=>b.localeCompare(a)).slice(0,20);
+  const entries=Object.entries(state.history)
+    .filter(([k,v])=>v.done.length>0)
+    .sort(([a],[b])=>b.localeCompare(a))
+    .slice(0,20);
   const logEl=document.getElementById('log-list');
   if(!entries.length){logEl.innerHTML=`<div class="empty-state"><div class="big">📋</div>No history yet.<br>Start checking off tasks.</div>`;return;}
   logEl.innerHTML=entries.map(([key,val])=>{
-    const [date,...dp]=key.split('_'); const day=dp.join('_');
+    const parts=key.split('_');
+    const date=parts[0];const day=parts.slice(1).join('_');
     const pct=val.total>0?Math.round(val.done.length/val.total*100):0;
     const pc=pct>=100?'great':pct>=50?'good':'';
     const dc=pct>=100?'#4ade80':pct>=50?'#e8ff47':'#fb923c';
     const ds=new Date(date+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'});
-    const sh=state.shifts[day]; const sl=sh?(sh.dayOff?'Off':`${sh.start}–${sh.end}`):'';
-    return `<div class="log-item"><div class="log-item-left"><div class="log-dot" style="background:${dc}"></div><div><div class="log-text">${day}</div><div class="log-meta">${ds}${sl?' · '+sl:''}</div></div></div><div class="log-pct ${pc}">${pct}%</div></div>`;
+    const sh=state.shifts[day];
+    const sl=sh?(sh.dayOff?'Off':`${sh.start}–${sh.end}`):'';
+    return `<div class="log-item">
+      <div class="log-item-left">
+        <div class="log-dot" style="background:${dc}"></div>
+        <div><div class="log-text">${day}</div><div class="log-meta">${ds}${sl?' · '+sl:''}</div></div>
+      </div>
+      <div class="log-pct ${pc}">${pct}%</div>
+    </div>`;
   }).join('');
 }
 
 // ── ACTIONS ──
-function selectDay(day) { state.activeDay=day; renderAll(); }
+function selectDay(day){state.activeDay=day;renderAll();}
 
-function toggleTask(i) {
+function toggleTask(i){
   const sess=ensureSess(state.activeDay);
-  if(sess.done.includes(i)) sess.done=sess.done.filter(x=>x!==i);
-  else {
+  if(sess.done.includes(i))sess.done=sess.done.filter(x=>x!==i);
+  else{
     sess.done.push(i);
     const sh=getShift(state.activeDay);
-    const tasks=buildSchedule(sh.dayOff?null:parseTime(sh.start),sh.dayOff?null:parseTime(sh.end),sh.dayOff);
-    if(sess.done.length===tasks.length) showToast('🔥 Day complete! Full send.');
+    const tasks=buildSchedule(sh.dayOff?null:parseTime(sh.start),sh.dayOff?null:parseTime(sh.end),sh.dayOff,sh.events||[]);
+    if(sess.done.length===tasks.length)showToast('🔥 Day complete! Full send.');
   }
-  saveState(); renderTasks(); renderPills(); renderSidebar();
+  saveState();renderTasks();renderPills();renderSidebar();
 }
 
-function tapWater(i) {
+function tapWater(i){
   const sess=ensureSess(state.activeDay);
   const cur=sess.water||0;
-  sess.water = cur===i+1 ? i : i+1;
-  if(sess.water===8) showToast('💧 8 cups done! Hydration goal hit.');
-  saveState(); renderWater();
+  sess.water=cur===i+1?i:i+1;
+  if(sess.water===BOTTLE_GOAL)showToast(`💧 ${BOTTLE_GOAL} bottles done! ${(BOTTLE_GOAL*BOTTLE_OZ).toFixed(1)} oz — hydration goal hit!`);
+  saveState();renderWater();
 }
 
-function confirmReset() {
-  if(confirm('Reset all data? This cannot be undone.')) {
-    state.history={}; state.shifts={};
-    saveState(); renderAll(); showToast('🗑️ All data cleared.');
+function confirmReset(){
+  if(confirm('Reset all data? This cannot be undone.')){
+    state.history={};state.shifts={};
+    saveState();renderAll();showToast('🗑️ All data cleared.');
   }
 }
 
-function showToast(msg) {
+function showToast(msg){
   const t=document.getElementById('toast');
-  t.textContent=msg; t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),2800);
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3000);
 }
 
-function nightBeforeCheck() {
+function nightBeforeCheck(){
   const hour=new Date().getHours();
   if(hour>=20){
     const dn=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
     const tomorrow=dn[(new Date().getDay()+1)%7];
-    if(!getShift(tomorrow)) setTimeout(()=>showToast(`📅 Set tomorrow's shift (${tomorrow}) for tonight`),1500);
+    if(!getShift(tomorrow))setTimeout(()=>showToast(`📅 Set tomorrow's shift (${tomorrow}) tonight`),1500);
   }
 }
 
-function init() {
+// ── INIT ──
+function init(){
   const now=new Date();
-  document.getElementById('real-date').textContent=now.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
-  const dn=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-  state.activeDay=dn[now.getDay()];
-  loadState(); renderAll(); nightBeforeCheck();
-  if('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}));
+  document.getElementById('real-date').textContent=
+    now.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+  loadState();
+  renderAll();
+  nightBeforeCheck();
+  if('serviceWorker' in navigator)
+    window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}));
 }
 
 init();

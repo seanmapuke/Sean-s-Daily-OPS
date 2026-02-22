@@ -439,116 +439,119 @@ function ensureSess(dateStr) {
 
 // ─────────────────────────────────────────────
 // SCHEDULE BUILDER
-// Anchors: Bible Study always FIRST (before anything else)
-//          Work block is fixed at exact shift times
-//          Events are fixed anchors — everything flows around them
-// Optimizer logic:
-//   MORNING shift (start < 12pm):
-//     - Bible → Breakfast → Travel → Work → Travel → [Gym/Cardio/Rest] → Dinner → LeetCode → Study → Jobs → Wind down
-//   AFTERNOON/EVENING shift (start >= 12pm):
-//     - Bible → Breakfast → [Gym/Cardio/Rest] → LeetCode → Study → Jobs → Lunch → Travel → Work → Travel → Dinner
-//   DAY OFF:
-//     - Bible → Breakfast → [Gym/Cardio/Rest] → LeetCode → Study → Jobs → Lunch → Free → Dinner → Prep tomorrow
+//
+// Wake time rules:
+//   - Day off           → 8:00 AM
+//   - Morning shift     → 6:30 AM (fixed early start regardless of shift)
+//   - Afternoon/Evening → 8:00 AM (plenty of morning time)
+//
+// Bible Study is ALWAYS slot 1 at wake time. Non-negotiable.
+// Work block is pinned to exact shift times.
+// Events are pinned to their times — everything else flows around them.
+//
+// Cursor tracks the "next available minute" and advances after every placed task.
+// Fixed blocks (work/travel) jump cursor to their end time so downstream tasks chain correctly.
 // ─────────────────────────────────────────────
 function buildSchedule(shift) {
   const { start, end, dayOff, workoutType = 'gym', events = [] } = shift;
   const startMin = dayOff ? null : parseTime(start);
   const endMin   = dayOff ? null : parseTime(end);
 
-  // Wake time: 2hr before shift start (min 6am), or 7am on day off
-  const wakeTime = dayOff ? 7*60 : Math.max(6*60, startMin - 120);
+  // Wake time — sleep at midnight = 8hrs rest
+  // Day off gets full sleep-in: 9am
+  let wakeTime;
+  if (dayOff)                wakeTime = 9 * 60;        // 9:00 AM — full rest day
+  else if (startMin < 12*60) wakeTime = 6 * 60 + 30;  // 6:30 AM for morning shifts
+  else                       wakeTime = 8 * 60;        // 8:00 AM for afternoon/evening
 
   const tasks = [];
   let cursor = wakeTime;
 
-  function place(dur, label, note, tag, isAnchor=false) {
+  // place() puts a task at cursor and advances cursor by dur + 5 min buffer
+  function place(dur, label, note, tag, isAnchor = false) {
     tasks.push({ time: cursor, dur, label, note, tag, isAnchor, isEvent: false });
-    cursor += dur + 5; // 5 min buffer between tasks
-    return cursor;
+    cursor += dur + 5;
   }
 
-  // ── ANCHOR 1: Bible Study — ALWAYS first, always ──
-  tasks.push({ time: wakeTime, dur: 25, label: '📖 Bible Study',
-    note: 'Anchor the day before anything else — Word first, always.',
-    tag: 'bible', isAnchor: true, isEvent: false });
-  cursor = wakeTime + 25 + 5;
+  // pin() puts a task at an EXACT time and advances cursor to that block's end + 5
+  // Used for work, travel — these never move regardless of cursor position
+  function pin(time, dur, label, note, tag, isAnchor = false) {
+    tasks.push({ time, dur, label, note, tag, isAnchor, isEvent: false });
+    cursor = time + dur + 5;
+  }
+
+  // ── BIBLE STUDY — always first, always at wake ──
+  place(25, '📖 Bible Study', 'Anchor the day before anything else — Word first, always.', 'bible', true);
 
   // ── Breakfast ──
   place(30, '🍳 Breakfast', 'High protein + complex carbs — eat for gains', 'food');
 
+  // ── Workout helper ──
+  function placeWorkout() {
+    if (workoutType === 'rest') return;
+    if (workoutType === 'cardio') place(50, '🏃 Cardio', 'Run or bike — your pace, push the zone', 'cardio');
+    else                          place(75, '💪 Gym',    "10 min drive + 1 hr lift — don't skip",  'gym');
+  }
+
   if (dayOff) {
-    // Day Off Schedule
-    const workout = buildWorkoutBlock(workoutType, cursor);
-    if (workout) { tasks.push({...workout, time: cursor, isEvent: false}); cursor += workout.dur + 5; }
+    // ── DAY OFF ──
+    placeWorkout();
+    place(30,  '💻 LeetCode',          '1 problem — daily non-negotiable',         'leet');
+    place(75,  '📚 Linear Algebra',    'Deep work block — no distractions',         'linalg');
+    place(45,  '💼 Job Applications',  'Quality over quantity — track everything',  'jobs');
+    place(30,  '🥗 Lunch',             'Fuel up mid-day',                            'food');
+    place(90,  '🌿 Free Time',         'Rest, friends, recharge — no guilt',         'free');
+    place(30,  '🍽️ Dinner',           'High protein evening meal',                  'food');
+    place(20,  "🗓️ Plan Tomorrow",    "Set tomorrow's shift & review goals",        'prep');
 
-    place(30, '💻 LeetCode', '1 problem — daily non-negotiable', 'leet');
-    place(75, '📚 Linear Algebra', 'Deep work block — no distractions', 'linalg');
-    place(45, '💼 Job Applications', 'Quality over quantity — track everything', 'jobs');
-    place(30, '🥗 Lunch', 'Fuel up mid-day', 'food');
-    place(90, '🌿 Free Time', 'Rest, friends, recharge — no guilt', 'free');
-    place(30, '🍽️ Dinner', 'High protein evening meal', 'food');
-    place(20, "🗓️ Plan Tomorrow", "Set tomorrow's shift & review goals", 'prep');
-
-  } else if (startMin < 12*60) {
-    // ── MORNING SHIFT ──
-    // Pre-work: breakfast already placed
-    // Travel + Work + Travel are FIXED
+  } else if (startMin < 12 * 60) {
+    // ── MORNING SHIFT (start before noon) ──
+    // Tight morning window — try to fit LeetCode pre-work if there's a gap
     const travelStart = startMin - 20;
-
-    // Squeeze in study if there's time before travel
-    const preWorkGap = travelStart - cursor;
-    if (preWorkGap >= 35) {
+    const preGap = travelStart - cursor; // minutes available before travel
+    if (preGap >= 35) {
       place(30, '💻 LeetCode', '1 quick problem before work', 'leet');
     }
 
-    // Fix travel/work blocks regardless of cursor
-    tasks.push({ time: travelStart, dur: 20, label: '🚗 Travel to Work', note: '20 min drive', tag: 'travel', isAnchor: false, isEvent: false });
-    tasks.push({ time: startMin,    dur: endMin - startMin, label: '💼 Work', note: `${fmtTime(startMin)} – ${fmtTime(endMin)}`, tag: 'work', isAnchor: true, isEvent: false });
-    tasks.push({ time: endMin,      dur: 20, label: '🚗 Travel Home', note: '20 min drive', tag: 'travel', isAnchor: false, isEvent: false });
+    // Pin work block at exact times — this jumps cursor to after travel home
+    pin(travelStart, 20,              '🚗 Travel to Work', '20 min drive',                           'travel');
+    pin(startMin,    endMin-startMin, '💼 Work',            `${fmtTime(startMin)} – ${fmtTime(endMin)}`, 'work', true);
+    pin(endMin,      20,              '🚗 Travel Home',    '20 min drive',                           'travel');
 
-    cursor = endMin + 20 + 5;
-
-    // Post-work: Dinner → Workout → LeetCode/Study/Jobs → Wind down
+    // Post-work block
     place(30, '🍽️ Dinner', 'Big post-work meal — fuel the evening', 'food');
+    placeWorkout();
 
-    const workout = buildWorkoutBlock(workoutType, cursor);
-    if (workout) { tasks.push({...workout, time: cursor, isEvent: false}); cursor += workout.dur + 5; }
-
-    // Only show LeetCode here if we didn't fit it pre-work
     const alreadyHasLeet = tasks.some(t => t.tag === 'leet');
     if (!alreadyHasLeet) place(30, '💻 LeetCode', '1 problem — daily non-negotiable', 'leet');
 
-    place(60, '📚 Linear Algebra', 'Study session — stay consistent', 'linalg');
-    place(45, '💼 Job Applications', '45 min focused — quality over quantity', 'jobs');
-    place(20, '🌙 Wind Down', 'Protein snack, water, decompress', 'food');
+    place(60, '📚 Linear Algebra',   'Study session — stay consistent',          'linalg');
+    place(45, '💼 Job Applications', '45 min focused — quality over quantity',   'jobs');
+    place(20, '🌙 Wind Down',        'Protein snack, water, decompress',         'food');
 
   } else {
-    // ── AFTERNOON / EVENING SHIFT ──
-    // Lots of morning time — fit workout, study, etc. before work
+    // ── AFTERNOON / EVENING SHIFT (start at noon or later) ──
+    // Big morning window — fit workout + full study block before work
+    placeWorkout();
+    place(30,  '💻 LeetCode',          '1 problem — daily non-negotiable',        'leet');
+    place(60,  '📚 Linear Algebra',    'Study while your brain is fresh',          'linalg');
+    place(45,  '💼 Job Applications',  'Morning grind — quality applications',     'jobs');
 
-    const workout = buildWorkoutBlock(workoutType, cursor);
-    if (workout) { tasks.push({...workout, time: cursor, isEvent: false}); cursor += workout.dur + 5; }
+    // Lunch: use cursor or 1hr 15min before shift, whichever is later
+    const lunchAt = Math.max(cursor, startMin - 75);
+    pin(lunchAt, 30, '🥗 Lunch', 'Big pre-work meal — fuel up', 'food');
 
-    place(30, '💻 LeetCode', '1 problem — daily non-negotiable', 'leet');
-    place(60, '📚 Linear Algebra', 'Study while your brain is fresh', 'linalg');
-    place(45, '💼 Job Applications', 'Morning grind — quality applications', 'jobs');
-
-    // Lunch before work
-    const lunchTime = Math.max(cursor, startMin - 75);
-    tasks.push({ time: lunchTime, dur: 30, label: '🥗 Lunch', note: 'Big pre-work meal — fuel up', tag: 'food', isAnchor: false, isEvent: false });
-
+    // Pin work block — jumps cursor to after travel home
     const travelStart = startMin - 20;
-    tasks.push({ time: travelStart, dur: 20, label: '🚗 Travel to Work', note: '20 min drive', tag: 'travel', isAnchor: false, isEvent: false });
-    tasks.push({ time: startMin,    dur: endMin - startMin, label: '💼 Work', note: `${fmtTime(startMin)} – ${fmtTime(endMin)}`, tag: 'work', isAnchor: true, isEvent: false });
-    tasks.push({ time: endMin,      dur: 20, label: '🚗 Travel Home', note: '20 min drive', tag: 'travel', isAnchor: false, isEvent: false });
+    pin(travelStart, 20,              '🚗 Travel to Work', '20 min drive',                           'travel');
+    pin(startMin,    endMin-startMin, '💼 Work',            `${fmtTime(startMin)} – ${fmtTime(endMin)}`, 'work', true);
+    pin(endMin,      20,              '🚗 Travel Home',    '20 min drive',                           'travel');
 
-    cursor = endMin + 20 + 5;
-    place(30, '🍽️ Dinner', 'Protein + healthy fats', 'food');
-    place(20, '🌙 Wind Down', 'Plan tomorrow, hydrate, decompress', 'prep');
+    place(30, '🍽️ Dinner',    'Protein + healthy fats',                'food');
+    place(20, '🌙 Wind Down', 'Plan tomorrow, hydrate, decompress',    'prep');
   }
 
-  // ── INJECT SPECIAL EVENTS ──
-  // Events are fixed in time — we need to resolve collisions
+  // ── INJECT SPECIAL EVENTS & RESOLVE COLLISIONS ──
   if (events.length > 0) {
     return resolveWithEvents(tasks, events);
   }
@@ -557,39 +560,27 @@ function buildSchedule(shift) {
   return tasks.map(t => ({...t, timeStr: fmtTime(t.time), durStr: fmtDur(t.dur)}));
 }
 
-function buildWorkoutBlock(type, startCursor) {
-  if (type === 'rest') return null;
-  if (type === 'cardio') {
-    return { dur: 50, label: '🏃 Cardio', note: 'Run or bike — your pace, push the zone', tag: 'cardio', isAnchor: false };
-  }
-  // gym (weights)
-  return { dur: 75, label: '💪 Gym', note: '10 min drive + 1 hr lift — don\'t skip', tag: 'gym', isAnchor: false };
-}
-
 function resolveWithEvents(baseTasks, events) {
-  // Parse event blocks — these are immovable anchors
+  // Parse event blocks — completely immovable
   const eventBlocks = events.map(ev => {
-    const st = parseTime(ev.start);
-    const en = parseTime(ev.end);
+    const st  = parseTime(ev.start);
+    const en  = parseTime(ev.end);
     const dur = en > st ? en - st : 60;
-    return { time: st, dur, end: st + dur, label: `🗓️ ${ev.name}`,
-      note: `${ev.start} – ${ev.end}`, tag: 'event', isEvent: true, isAnchor: true };
+    return { time: st, dur, end: st + dur,
+      label: `🗓️ ${ev.name}`, note: `${ev.start} – ${ev.end}`,
+      tag: 'event', isEvent: true, isAnchor: false }; // isAnchor:false so Bible Study isn't displaced
   }).sort((a, b) => a.time - b.time);
 
-  // Fixed tags that can never be moved (work, travel, anchor tasks)
-  const IMMOVABLE = (t) => t.tag === 'work' || t.tag === 'travel' || t.isAnchor;
+  // Things that must never be moved: work block, travel, bible study
+  const IMMOVABLE = (t) => t.tag === 'work' || t.tag === 'travel' || t.tag === 'bible';
 
-  // For each movable task, push it forward if it overlaps any event
+  // Push each movable task past any event it overlaps
   let resolved = baseTasks.map(task => {
     if (IMMOVABLE(task)) return task;
     let t = {...task};
-    let iter = 0;
-    while (iter++ < 30) {
+    for (let iter = 0; iter < 30; iter++) {
       const tEnd = t.time + t.dur;
-      let clash = null;
-      for (const ev of eventBlocks) {
-        if (t.time < ev.end && tEnd > ev.time) { clash = ev; break; }
-      }
+      const clash = eventBlocks.find(ev => t.time < ev.end && tEnd > ev.time);
       if (!clash) break;
       t = {...t, time: clash.end + 10};
     }

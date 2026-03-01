@@ -338,7 +338,7 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-
 // ─────────────────────────────────────────────
 const BOTTLE_OZ = 16.9;
 const BOTTLE_GOAL = 4;
-const SK = 'seans_daily_ops_v8';
+const SK = 'seans_daily_ops_v10';
 
 const TAG = {
   bible:  {color:'#fbbf24', bg:'rgba(251,191,36,0.12)',  label:'Faith'},
@@ -457,12 +457,18 @@ function buildSchedule(shift) {
   const startMin = dayOff ? null : parseTime(start);
   const endMin   = dayOff ? null : parseTime(end);
 
-  // Wake time — sleep at midnight = 8hrs rest
-  // Day off gets full sleep-in: 9am
+  // Wake time — ensure at least 35 min before travel (bible study 25 + 5 buffer + 5 breathing room)
+  // For very early shifts this may push wake before 6:30
   let wakeTime;
-  if (dayOff)                wakeTime = 9 * 60;        // 9:00 AM — full rest day
-  else if (startMin < 12*60) wakeTime = 6 * 60 + 30;  // 6:30 AM for morning shifts
-  else                       wakeTime = 8 * 60;        // 8:00 AM for afternoon/evening
+  if (dayOff) {
+    wakeTime = 9 * 60;
+  } else if (startMin < 12 * 60) {
+    const travelTime = startMin - 20;
+    const latestWake = travelTime - 35; // need 35 min min before travel for bible study
+    wakeTime = Math.min(6 * 60 + 30, latestWake); // 6:30 AM or earlier if needed
+  } else {
+    wakeTime = 8 * 60;
+  }
 
   const tasks = [];
   let cursor = wakeTime;
@@ -523,17 +529,6 @@ function buildSchedule(shift) {
     pin(endM,       20,        '🚗 Travel Home',     '20 min drive',                                  'travel');
   }
 
-  // ── Helper: pin work block with pre-work lunch (shift starts 1 PM or later) ──
-  function pinWorkPreLunch(startM, endM) {
-    const travelTo = startM - 20;
-    // Lunch at noon or whenever cursor lands, but must end at least 30 min before travel
-    const lunchAt  = Math.min(Math.max(cursor, 12 * 60), travelTo - 60);
-    pin(lunchAt,  30,          '🥗 Lunch',           'Fuel up before the shift — big meal',            'food');
-    pin(travelTo, 20,          '🚗 Travel to Work',  '20 min drive',                                  'travel');
-    pin(startM,   endM-startM, '💼 Work',            `${fmtTime(startM)} – ${fmtTime(endM)}`,          'work', true);
-    pin(endM,     20,          '🚗 Travel Home',     '20 min drive',                                  'travel');
-  }
-
   if (dayOff) {
     // ── DAY OFF ──
     placeMorningBlock();
@@ -547,24 +542,28 @@ function buildSchedule(shift) {
 
   } else if (startMin < 12 * 60) {
     // ── MORNING SHIFT (starts before noon) ──
-    // Gym fits pre-work only if there's a 2hr window between wake and travel
-    const travelStart   = startMin - 20;
+    const travelStart    = startMin - 20;
     const gymFitsPreWork = (travelStart - cursor) >= 120;
+    // Minimum window needed for routine + breakfast = 20+5+30+5 = 60 min
+    const routineFitsPreWork = (travelStart - cursor) >= 60;
 
     if (gymFitsPreWork) {
-      placeMorningBlock();
-    } else {
+      placeMorningBlock(); // full block: snack + gym + routine + breakfast
+    } else if (routineFitsPreWork) {
       place(20, '🚿 Morning Routine', 'Quick shower, get ready for work', 'prep');
       place(30, '🍳 Breakfast',       'Quick high-protein breakfast',     'food');
     }
+    // else: shift too early even for routine — go straight to travel, do routine post-work
 
     // Lunch always mid-shift for morning shifts
     pinWorkWithLunch(startMin, endMin);
 
     place(30, '🍽️ Dinner', 'Big post-work meal — fuel the evening', 'food');
 
-    if (!gymFitsPreWork) {
-      placePostWorkGym();
+    if (!gymFitsPreWork) placePostWorkGym();
+    if (!routineFitsPreWork) {
+      place(20, '🚿 Morning Routine', 'Shower and get settled after work', 'prep');
+      place(30, '🍳 Breakfast',       'Late breakfast / early meal — fuel up', 'food');
     }
 
     place(30, '💻 LeetCode',         '1 problem — daily non-negotiable',       'leet');
@@ -575,19 +574,38 @@ function buildSchedule(shift) {
   } else {
     // ── AFTERNOON / EVENING SHIFT (starts at noon or later) ──
     placeMorningBlock();
-    place(30, '💻 LeetCode',         '1 problem — daily non-negotiable',       'leet');
-    place(60, '📚 Linear Algebra',   'Study while your brain is fresh',         'linalg');
-    place(45, '💼 Job Applications', 'Morning grind — quality applications',    'jobs');
+
+    const travelStart = startMin - 20;
+    // Available pre-work window after morning block (need 30 min buffer before travel)
+    // Task durations with buffers: Leet=35, LinAlg=65, Jobs=50 → total=150
+    const preWindow = travelStart - 30 - cursor;
+
+    const doLeet   = preWindow >= 35;
+    const doLinalg = preWindow >= 100;
+    const doJobs   = preWindow >= 150;
+
+    if (doLeet)   place(30, '💻 LeetCode',         '1 problem — daily non-negotiable',       'leet');
+    if (doLinalg) place(60, '📚 Linear Algebra',   'Study while your brain is fresh',         'linalg');
+    if (doJobs)   place(45, '💼 Job Applications', 'Morning grind — quality applications',    'jobs');
 
     if (startMin >= 13 * 60) {
-      // 1 PM or later — lunch before work
-      pinWorkPreLunch(startMin, endMin);
+      // 1 PM+ — lunch right after study tasks, then travel, then work
+      place(30, '🥗 Lunch', 'Fuel up before the shift — big meal', 'food');
+      pin(travelStart,  20,             '🚗 Travel to Work', '20 min drive',                           'travel');
+      pin(startMin,     endMin-startMin,'💼 Work',           `${fmtTime(startMin)} – ${fmtTime(endMin)}`,'work', true);
+      pin(endMin,       20,             '🚗 Travel Home',    '20 min drive',                           'travel');
     } else {
       // Noon shift — lunch mid-shift
       pinWorkWithLunch(startMin, endMin);
     }
 
-    place(30, '🍽️ Dinner',    'Protein + healthy fats',             'food');
+    place(30, '🍽️ Dinner', 'Protein + healthy fats', 'food');
+
+    // Anything that didn't fit pre-work goes post-work
+    if (!doLeet)   place(30, '💻 LeetCode',         '1 problem — non-negotiable',           'leet');
+    if (!doLinalg) place(60, '📚 Linear Algebra',   'Evening study — stay consistent',       'linalg');
+    if (!doJobs)   place(45, '💼 Job Applications', 'Evening grind — quality over quantity', 'jobs');
+
     place(20, '🌙 Wind Down', 'Plan tomorrow, hydrate, decompress', 'prep');
   }
 

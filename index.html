@@ -352,7 +352,7 @@ const TAG = {
   travel: {color:'#6b7280', bg:'rgba(107,114,128,0.08)', label:'Travel'},
   free:   {color:'#555',    bg:'rgba(80,80,80,0.08)',    label:'Rest'},
   event:  {color:'#c084fc', bg:'rgba(192,132,252,0.12)', label:'Event'},
-  prep:   {color:'#e8ff47', bg:'rgba(232,255,71,0.08)',  label:'Prep'},
+  prep:   {color:'#94a3b8', bg:'rgba(148,163,184,0.08)', label:'Routine'},
 };
 
 // ─────────────────────────────────────────────
@@ -483,19 +483,33 @@ function buildSchedule(shift) {
   // ── BIBLE STUDY — always first, always at wake ──
   place(25, '📖 Bible Study', 'Anchor the day before anything else — Word first, always.', 'bible', true);
 
-  // ── Breakfast ──
-  place(30, '🍳 Breakfast', 'High protein + complex carbs — eat for gains', 'food');
+  // ── Morning block helpers ──
+  // Full morning block: Pre-gym Snack → Gym/Cardio → Morning Routine → Breakfast
+  // Rest day morning block: Morning Routine → Breakfast
+  function placeMorningBlock() {
+    if (workoutType === 'rest') {
+      place(20, '🚿 Morning Routine', 'Shower, get dressed, ready to go', 'prep');
+      place(30, '🍳 Breakfast',       'High protein + complex carbs — eat for fuel', 'food');
+    } else {
+      place(15, '🥤 Pre-Gym Snack',   'Light snack — banana, protein bar, something quick', 'food');
+      if (workoutType === 'cardio') place(50, '🏃 Cardio', 'Run or bike — your pace, push the zone', 'cardio');
+      else                          place(75, '💪 Gym',    "10 min drive + 1 hr lift — don't skip",  'gym');
+      place(20, '🚿 Morning Routine', 'Shower + get ready post-workout',             'prep');
+      place(30, '🍳 Breakfast',       'High protein post-workout meal — eat for gains', 'food');
+    }
+  }
 
-  // ── Workout helper ──
-  function placeWorkout() {
+  // Gym-only block for after work (no snack, since dinner comes first)
+  function placePostWorkGym() {
     if (workoutType === 'rest') return;
-    if (workoutType === 'cardio') place(50, '🏃 Cardio', 'Run or bike — your pace, push the zone', 'cardio');
-    else                          place(75, '💪 Gym',    "10 min drive + 1 hr lift — don't skip",  'gym');
+    if (workoutType === 'cardio') place(50, '🏃 Cardio', 'Post-work cardio — burn it out', 'cardio');
+    else                          place(75, '💪 Gym',    "Post-work lift — don't skip",    'gym');
+    place(20, '🚿 Post-Gym Shower', 'Clean up after the gym', 'prep');
   }
 
   if (dayOff) {
     // ── DAY OFF ──
-    placeWorkout();
+    placeMorningBlock();
     place(30,  '💻 LeetCode',          '1 problem — daily non-negotiable',         'leet');
     place(75,  '📚 Linear Algebra',    'Deep work block — no distractions',         'linalg');
     place(45,  '💼 Job Applications',  'Quality over quantity — track everything',  'jobs');
@@ -506,33 +520,42 @@ function buildSchedule(shift) {
 
   } else if (startMin < 12 * 60) {
     // ── MORNING SHIFT (start before noon) ──
-    // Tight morning window — try to fit LeetCode pre-work if there's a gap
+    // Check if full 2-hr morning block fits before travel (wake → travelStart >= 120 min)
     const travelStart = startMin - 20;
-    const preGap = travelStart - cursor; // minutes available before travel
-    if (preGap >= 35) {
-      place(30, '💻 LeetCode', '1 quick problem before work', 'leet');
+    const morningWindow = travelStart - cursor; // available minutes from after bible study
+    const gymFitsPreWork = morningWindow >= 120;
+
+    if (gymFitsPreWork) {
+      // Full morning block fits before work
+      placeMorningBlock();
+    } else {
+      // Not enough time — just morning routine + breakfast, gym goes post-work
+      place(20, '🚿 Morning Routine', 'Quick shower, get ready for work', 'prep');
+      place(30, '🍳 Breakfast',       'Quick high-protein breakfast',     'food');
     }
 
-    // Pin work block at exact times — this jumps cursor to after travel home
-    pin(travelStart, 20,              '🚗 Travel to Work', '20 min drive',                           'travel');
+    // Pin work block at exact times
+    pin(travelStart, 20,              '🚗 Travel to Work', '20 min drive',                              'travel');
     pin(startMin,    endMin-startMin, '💼 Work',            `${fmtTime(startMin)} – ${fmtTime(endMin)}`, 'work', true);
-    pin(endMin,      20,              '🚗 Travel Home',    '20 min drive',                           'travel');
+    pin(endMin,      20,              '🚗 Travel Home',    '20 min drive',                              'travel');
 
     // Post-work block
     place(30, '🍽️ Dinner', 'Big post-work meal — fuel the evening', 'food');
-    placeWorkout();
 
-    const alreadyHasLeet = tasks.some(t => t.tag === 'leet');
-    if (!alreadyHasLeet) place(30, '💻 LeetCode', '1 problem — daily non-negotiable', 'leet');
+    if (!gymFitsPreWork) {
+      // Gym moved to after work
+      placePostWorkGym();
+    }
 
+    place(30, '💻 LeetCode',         '1 problem — daily non-negotiable',        'leet');
     place(60, '📚 Linear Algebra',   'Study session — stay consistent',          'linalg');
     place(45, '💼 Job Applications', '45 min focused — quality over quantity',   'jobs');
-    place(20, '🌙 Wind Down',        'Protein snack, water, decompress',         'food');
+    place(20, '🌙 Wind Down',        'Protein snack, water, decompress',         'prep');
 
   } else {
     // ── AFTERNOON / EVENING SHIFT (start at noon or later) ──
-    // Big morning window — fit workout + full study block before work
-    placeWorkout();
+    // Big morning window — full morning block + study before work
+    placeMorningBlock();
     place(30,  '💻 LeetCode',          '1 problem — daily non-negotiable',        'leet');
     place(60,  '📚 Linear Algebra',    'Study while your brain is fresh',          'linalg');
     place(45,  '💼 Job Applications',  'Morning grind — quality applications',     'jobs');
@@ -541,11 +564,11 @@ function buildSchedule(shift) {
     const lunchAt = Math.max(cursor, startMin - 75);
     pin(lunchAt, 30, '🥗 Lunch', 'Big pre-work meal — fuel up', 'food');
 
-    // Pin work block — jumps cursor to after travel home
+    // Pin work block
     const travelStart = startMin - 20;
-    pin(travelStart, 20,              '🚗 Travel to Work', '20 min drive',                           'travel');
+    pin(travelStart, 20,              '🚗 Travel to Work', '20 min drive',                              'travel');
     pin(startMin,    endMin-startMin, '💼 Work',            `${fmtTime(startMin)} – ${fmtTime(endMin)}`, 'work', true);
-    pin(endMin,      20,              '🚗 Travel Home',    '20 min drive',                           'travel');
+    pin(endMin,      20,              '🚗 Travel Home',    '20 min drive',                              'travel');
 
     place(30, '🍽️ Dinner',    'Protein + healthy fats',                'food');
     place(20, '🌙 Wind Down', 'Plan tomorrow, hydrate, decompress',    'prep');
